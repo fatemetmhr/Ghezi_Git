@@ -5,8 +5,11 @@ int main(int argc, char *argv[]) {
     if (argc < 2)
         return invalid_command(), 0;
 
-    if (!strcmp(argv[1], "init"))
+    if (!strcmp(argv[1], "init")){
+        if(argc > 2)
+            return invalid_command(), 0;
         return run_init(argc, argv);
+    }
 
     if(!strcmp(argv[1], "config")){
         if (argc < 3)
@@ -99,6 +102,12 @@ int main(int argc, char *argv[]) {
             st++;
         }
         return 0;
+    }
+
+    if(!strcmp(argv[1], "status")){
+        if(argc > 2)
+            return invalid_command(), 0;
+        return status();
     }
 
     return invalid_command(), 0;

@@ -13,6 +13,7 @@ static const char *last_general_name = "general_name.txt";
 static const char *last_general_email = "general_email.txt";
 static const char *stage_name = "stage.txt";
 static const char *new_name_keeper = "source_name_counter.txt";
+static const char *tracker_name = "tracker.txt";
 
 static const int MAX_CONFIG_NAME = 210;
 static const int MAX_PATH_SIZE   = 510;
@@ -33,6 +34,10 @@ int rename_file(const char *cur_name, const char *wanted_name);
 void debug(const char *s);
 void print_cwd();
 char* get_ghezi_wd();
+bool is_file_here(const char *path, const char *file);
+bool is_in_file(const char *path, const char *pat);
+char* find_in_map(const char *path, const char *pat);
+bool is_allowed_name(const char *s);
 
 // init
 
@@ -53,3 +58,7 @@ int show_stage_status();
 int reset_file(char *name);
 int reset_dir();
 int undo_add();
+
+// status
+
+int status();

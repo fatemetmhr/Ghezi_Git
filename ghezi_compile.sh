@@ -1,1 +1,1 @@
-sudo gcc -Wall general_functions.c config.c init.c main.c add.c -o ghezi
+sudo gcc -Wall general_functions.c config.c init.c main.c add.c status.c -o ghezi

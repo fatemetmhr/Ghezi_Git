@@ -40,8 +40,10 @@ int run_init(int argc, char * const argv[]) {
         fprintf(f, "%d", 0);
         fclose(f);
 
-        // making stage keeper
+        // making stage keeper and tracker
         f = fopen(stage_name, "w");
+        fclose(f);
+        f = fopen(tracker_name, "w");
         fclose(f);
 
         char cur[1024];

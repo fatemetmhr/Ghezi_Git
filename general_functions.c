@@ -24,6 +24,10 @@ void print_cwd(){
     return;
 }
 
+bool is_allowed_name(const char *s){
+    return strcmp(s, ".") && strcmp(s, "..") && strcmp(s, ".ghezi");
+}
+
 char* get_ghezi_wd(){
     char cwd[1024];
     if(getcwd(cwd, sizeof(cwd)) == NULL)
@@ -162,4 +166,42 @@ char* make_par_dir(char *path){
     pt = max(pt, 0);
     path[pt] = '\0';
     return name;
+}
+
+bool is_file_here(const char *path, const char *file){
+    int len = strlen(path);
+    if(strlen(path) < len)
+        return 0;
+    for(int i = 0; i < len; i++)
+        if(path[i] != file[i])
+            return 0;
+    if(file[len] != '/')
+        return 0;
+    int len2 = strlen(file);
+    for(int i = len + 1; i < len2; i++)
+        if(file[i] == '/')
+            return 0;
+    return 1;
+}
+
+bool is_in_file(const char *path, const char *pat){
+    FILE *f = fopen(path, "r");
+    char s[1024];
+    bool re = false;
+    while(fscanf(f, "%s \n", s) > 0)
+        re |= (!strcmp(pat, s));
+    fclose(f);
+    return re;
+}
+
+char* find_in_map(const char *path, const char *pat){
+    char *s = malloc(1024);
+    char x[1024], y[1024];
+    s[0] = '\0';
+    FILE *f = fopen(path, "r");
+    while(fscanf(f, "%s %s\n", x, y) > 0)
+        if(!strcmp(pat, x))
+            strcpy(s, y);
+    fclose(f);
+    return s;
 }

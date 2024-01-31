@@ -60,6 +60,20 @@ int add_file(char *name){ // in this directory, will be return here as well, fil
     fprintf(stage, "%s %s\n", fpath, cppath);
     fclose(stage);
 
+    // add it's path to tracker
+    FILE *trk = fopen(tracker_name, "r+");
+    if(trk == NULL)
+        return 1;
+    char s[1024];
+    bool found = false;
+    while(fscanf(trk, "%s \n", s) > 0 && !found){
+        if(!strcmp(s, fpath))
+            found = true;
+    }
+    if(!found)
+        fprintf(trk, "%s\n", fpath);
+    fclose(trk);
+
     if(chdir(cwd) != 0)
         return 1;
     return 0;
@@ -71,7 +85,7 @@ int add_dir(){ // add all files in this directory
     if(dir == NULL)
         return 1;
     while((entry = readdir(dir)) != NULL){
-        if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+        if(!is_allowed_name(entry->d_name))
             continue;
         if(entry->d_type == DT_DIR){
             if(chdir(entry->d_name) != 0)
@@ -180,7 +194,7 @@ int reset_dir(){ // add all files in this directory
     if(dir == NULL)
         return 1;
     while((entry = readdir(dir)) != NULL){
-        if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+        if(!is_allowed_name(entry->d_name))
             continue;
         if(entry->d_type == DT_DIR){
             if(chdir(entry->d_name) != 0)
