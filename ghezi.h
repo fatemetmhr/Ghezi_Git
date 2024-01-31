@@ -32,6 +32,7 @@ int min(int a, int b);
 int rename_file(const char *cur_name, const char *wanted_name);
 void debug(const char *s);
 void print_cwd();
+char* get_ghezi_wd();
 
 // init
 
@@ -50,3 +51,5 @@ int add_file(char *name);
 int add_dir();
 int show_stage_status();
 int reset_file(char *name);
+int reset_dir();
+int undo_add();

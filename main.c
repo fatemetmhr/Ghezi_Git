@@ -56,6 +56,11 @@ int main(int argc, char *argv[]) {
         int st = 2;
         if(!strcmp(argv[2], "-f"))
             st = 3;
+        char *s = get_ghezi_wd();
+        add_to_string(s, "/", stage_name);
+        FILE *stage = fopen(s, "a");
+        fprintf(stage, "NULL NULL\n");
+        fclose(stage);
         while(st < argc){
             if(chdir(argv[st]) != 0){
                 if(add_file(argv[st]))
@@ -63,6 +68,30 @@ int main(int argc, char *argv[]) {
             }
             else{
                 if(add_dir())
+                    return 1;
+                if(chdir(".."))
+                    return 1;
+            }
+            st++;
+        }
+        return 0;
+    }
+
+    if(!strcmp(argv[1], "reset")){
+        if(argc < 3)
+            return invalid_command(), 0;
+        if(!strcmp(argv[2], "-undo"))
+            return undo_add();
+        int st = 2;
+        if(!strcmp(argv[2], "-f"))
+            st = 3;
+        while(st < argc){
+            if(chdir(argv[st]) != 0){
+                if(reset_file(argv[st]))
+                    return 1;
+            }
+            else{
+                if(reset_dir())
                     return 1;
                 if(chdir(".."))
                     return 1;

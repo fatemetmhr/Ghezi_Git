@@ -24,6 +24,18 @@ void print_cwd(){
     return;
 }
 
+char* get_ghezi_wd(){
+    char cwd[1024];
+    if(getcwd(cwd, sizeof(cwd)) == NULL)
+        fprintf(stderr, "error while getting current path, in get_ghezi_wd function");
+    char *path = malloc(2048);
+    chdir_ghezi();
+    if(getcwd(path, 2048) == NULL)
+        fprintf(stderr, "error while getting current path, in get_ghezi_wd function");
+    chdir(cwd);
+    return path;
+}
+
 char* abs_path(const char *s){
     if(s[0] == '/'){
         char *t = malloc(1024);

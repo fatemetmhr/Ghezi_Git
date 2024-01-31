@@ -173,3 +173,65 @@ int reset_file(char *name){
         return 1;
     return 0;
 }
+
+int reset_dir(){ // add all files in this directory
+    struct dirent *entry;
+    DIR *dir = opendir(".");
+    if(dir == NULL)
+        return 1;
+    while((entry = readdir(dir)) != NULL){
+        if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+            continue;
+        if(entry->d_type == DT_DIR){
+            if(chdir(entry->d_name) != 0)
+                return 1;
+            if(reset_dir())
+                return 1;
+            if(chdir(".."))
+                return 1;
+        }
+        else if(reset_file(entry->d_name))
+            return 1;
+    }
+    closedir(dir);
+    return 0;
+}
+
+int undo_add(){
+    char *path = get_ghezi_wd();
+    char *ptmp = malloc(2048);
+    strcpy(ptmp, path);
+    add_to_string(ptmp, "/", "tmp.txt");
+    add_to_string(path, "/", stage_name);
+    FILE *stages = fopen(path, "r");
+    FILE *tmp = fopen(ptmp, "w");
+    if(stages == NULL || tmp == NULL)
+        return 1;
+    char *rl_path[1024], *cp_path[1024];
+    int cnt = 0;
+    char *rl = malloc(1024);
+    char *cp = malloc(1024);
+    while(fscanf(stages, "%s %s\n", rl, cp) > 0){
+        if(!strcmp(rl, "NULL")){
+            for(int i = 0; i < cnt; i++)
+                fprintf(tmp, "%s %s\n", rl_path[i], cp_path[i]);
+            cnt = 0;
+        }
+        if(cnt == 1024)
+            return fprintf(stderr, "more thatn 1024 files found!"), 1;
+        rl_path[cnt] = malloc(1024);
+        strcpy(rl_path[cnt], rl);
+        cp_path[cnt] = malloc(1024);
+        strcpy(cp_path[cnt], cp);
+        cnt++;
+    }
+    fclose(stages);
+    fclose(tmp);
+    char *s = malloc(2058);
+    s[0] = 'r';
+    s[1] = 'm';
+    add_to_string(s, " ", path);    
+    if(system(s))
+        return 1;
+    return rename_file(ptmp, path);
+}
