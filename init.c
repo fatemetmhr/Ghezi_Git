@@ -2,11 +2,14 @@
 
 int run_init(int argc, char * const argv[]) {
     char cwd[1024];
-    if (getcwd(cwd, sizeof(cwd)) == NULL) return 1;
+    if (getcwd(cwd, sizeof(cwd)) == NULL) 
+        return 1;
     int res = chdir_ghezi();
     if (res == 1){
         if(chdir(general_configs_path) != 0)
             return 1;
+        // general config checking
+
         FILE *gname = fopen(last_general_name, "r");
         FILE *gemail = fopen(last_general_email, "r");
         if(gname == NULL)
@@ -21,14 +24,31 @@ int run_init(int argc, char * const argv[]) {
         if(chdir(cwd) != 0)
             return  1;
         
+        // making repo
         if (mkdir(".ghezi", 0755) != 0) 
             return 2;
         perror("ghezi has been created successfully!");
         if(chdir(".ghezi") != 0)
             return 1;
+
+        // making source folder and counter file
+        if(mkdir("source", 0755) != 0)
+            return 1;
+        FILE *f = fopen(new_name_keeper, "w");
+        if(f == NULL)
+            return 1;
+        fprintf(f, "%d", 0);
+        fclose(f);
+
+        // making stage keeper
+        f = fopen(stage_name, "w");
+        fclose(f);
+
         char cur[1024];
         if (getcwd(cur, sizeof(cur)) == NULL) 
             return 1;
+
+        // add path to general paths
         if (chdir(general_configs_path) != 0)
             return 1;
         FILE *gconf = fopen(general_configs_name, "a");
@@ -36,10 +56,14 @@ int run_init(int argc, char * const argv[]) {
             return perror("error while opening general configs file"), 1;
         fprintf(gconf, "%s\n", cur);
         fclose(gconf);
+
+
         if(chdir(cwd) != 0)
             return 1;
         if(chdir(".ghezi") != 0)
             return 1;
+        
+        // set local configs
         return update_config(name, email);
     }else if(res == 0) {
         perror("ghezi repository has already initialized");
