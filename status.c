@@ -1,11 +1,9 @@
 #include "ghezi.h"
 
 int status(){ // status of while repo
-    char *spath = get_ghezi_wd();
-    char *tpath = malloc(2048);
-    strcpy(tpath, spath);
-    add_to_string(spath, "/", stage_name);
-    add_to_string(tpath, "/", tracker_name);
+    char *spath = get_stage_path();
+    char *tpath = get_track_path();
+    char *head_path = get_head_path();
 
     struct dirent *entry;
     DIR *dir = opendir(".");
@@ -64,7 +62,7 @@ int status(){ // status of while repo
     for(int i = 0; i < n; i++){
         char *cppath = find_in_map(spath, av[i]);
         if(strlen(cppath) == 0){
-            cppath = find_in_map(cppath, av[i]);
+            cppath = find_in_map(head_path, av[i]);
             if(strlen(cppath) && are_diff(cppath, av[i]))
                 printf("file %s : -M\n", av[i]);
             else
@@ -77,3 +75,23 @@ int status(){ // status of while repo
 }
 
 // in code akharin yadegare 18 salegime! tavalodam mobarak kheili bi dalil :)
+
+int deleted_dir_status(){
+    if(chdir_ghezi())
+        return 1;
+    FILE *f = fopen(tracker_name, "r");
+    char *spath = get_stage_path();
+    char s[1024];
+    while(fscanf(f, "%s \n", s) > 0){
+        char *name = make_par_dir(s);
+        if(!chdir(s))
+            continue;
+        add_to_string(s, "/", name);
+        if(is_in_file(spath, s))
+            printf("file %s : +D\n", s);
+        else
+            printf("file %s : -D\n", s);
+    }
+    fclose(f);
+    return 0;
+}

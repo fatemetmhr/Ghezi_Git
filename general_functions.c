@@ -71,7 +71,7 @@ int rename_file(const char *s, const char *t){
     return 0;
 }
 
-int remove_prefix(char *av, char *pat){
+int remove_prefix(char *av, const char *pat){
     int len = strlen(pat);
     if(strlen(av) < len)
         return 1;
@@ -204,4 +204,50 @@ char* find_in_map(const char *path, const char *pat){
             strcpy(s, y);
     fclose(f);
     return s;
+}
+
+bool is_file_empty(const char *path){
+    FILE *f = fopen(path, "r");
+    char s[MAX_LINE_SIZE];
+    bool re = fgets(s, sizeof(s), f) == NULL;
+    fclose(f);
+    return re;
+}
+
+char* get_inc(const char *path){
+    char *new_name = malloc(MAX_LINE_SIZE);
+    new_name[0] = '\0';
+    FILE *nname = fopen(path, "r");
+    if(nname == NULL)
+        return fprintf(stderr, "error while opening file %s in function get_inc\n", path), new_name;
+    fscanf(nname, "%s", new_name);
+    fclose(nname);
+    if((nname = fopen(path, "r")) == NULL)
+        return fprintf(stderr, "error while opening file %s in function get_inc\n", path), new_name;
+    int x;
+    fscanf(nname, "%d", &x);
+    fclose(nname);
+    if((nname = fopen(path, "w")) == NULL)
+        return fprintf(stderr, "error while opening file %s in function get_inc\n", path), new_name;
+    fprintf(nname, "%d", ++x);
+    fclose(nname);
+    return new_name;
+}
+
+char *get_stage_path(){
+    char *path = get_ghezi_wd();
+    add_to_string(path, "/", stage_name);
+    return path;
+}
+
+char *get_track_path(){
+    char *path = get_ghezi_wd();
+    add_to_string(path, "/", tracker_name);
+    return path;
+}
+
+char *get_head_path(){
+    char *path = get_ghezi_wd();
+    add_to_string(path, "/", head_name);
+    return path;
 }

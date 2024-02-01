@@ -1,6 +1,6 @@
 #include "ghezi.h"
 
-int add_file(char *name){ // in this directory, will be return here as well, file didn't found -> return 0;
+int add_file(const char *name){ // in this directory, will be return here as well, file didn't found -> return 0;
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) == NULL) 
         return 1;
@@ -30,21 +30,7 @@ int add_file(char *name){ // in this directory, will be return here as well, fil
     }
     
     // find new name for copy of the file in source
-    char new_name[100];
-    FILE *nname = fopen(new_name_keeper, "r");
-    if(nname == NULL)
-        return 1;
-    fscanf(nname, "%s", new_name);
-    fclose(nname);
-    if((nname = fopen(new_name_keeper, "r")) == NULL)
-        return 1;
-    int x;
-    fscanf(nname, "%d", &x);
-    fclose(nname);
-    if((nname = fopen(new_name_keeper, "w")) == NULL)
-        return 1;
-    fprintf(nname, "%d", ++x);
-    fclose(nname);
+    char *new_name = get_inc(new_name_keeper);
 
     // make a copy of the file
     char cppath[1024];
@@ -159,7 +145,7 @@ int show_stage_status(){
 }
 
 
-int reset_file(char *name){
+int reset_file(const char *name){
     char cwd[1024], file[1024];
     if (getcwd(cwd, sizeof(cwd)) == NULL) 
         return 1;

@@ -40,6 +40,22 @@ int run_init(int argc, char * const argv[]) {
         fprintf(f, "%d", 0);
         fclose(f);
 
+        //making commit directory and counter file and HEAD file and shortcut keeper file and branch name keeper
+        if(mkdir("commits", 0755))
+            return 1;
+        f = fopen(new_commit_id_keeper, "w");
+        if(f == NULL)
+            return 1;
+        fprintf(f, "%d", 1);
+        fclose(f);
+        f = fopen(head_name, "w");
+        fclose(f);
+        f = fopen(msg_shortcuts, "w");
+        fclose(f);
+        f = fopen(branch_name, "w");
+        fprintf(f, "master");
+        fclose(f);
+
         // making stage keeper and tracker
         for(int i = 0; i < MAX_STAGE_HISTORY; i++){
             f = fopen(stage_history[i], "w");

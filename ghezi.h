@@ -6,25 +6,36 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 
 static const char *general_configs_path = "/Users/fatemetmhr/Documents/ghezi";
 static const char *general_configs_name = "general_config_paths.txt";
 static const char *last_general_name = "general_name.txt";
 static const char *last_general_email = "general_email.txt";
 static const char *stage_name = "stage.txt";
+static const char *branch_name = "cur_branch.txt";
 static const char *new_name_keeper = "source_name_counter.txt";
+static const char *new_commit_id_keeper = "commit_id_counter.txt";
 static const char *tracker_name = "tracker.txt";
+static const char *commit_paths = "commits.txt";
+static const char *commit_time = "time.txt";
+static const char *commit_user = "information.txt";
+static const char *commit_message = "message.txt";
+static const char *commit_branch = "branch_name.txt";
+static const char *head_name = "HEAD_commit.txt";
+static const char *msg_shortcuts = "commit_message_shortcuts.txt";
 
 static const char *stage_history[11] = {"stage.txt", "stage0.txt", "stage1.txt", "stage2.txt", "stage3.txt", "stage4.txt", "stage5.txt", "stage6.txt", "stage7.txt", "stage8.txt", "stage9.txt"};
 
-static const int MAX_CONFIG_NAME   = 210;
-static const int MAX_PATH_SIZE     = 510;
-static const int MAX_LINE_SIZE     = 2048;
-static const int MAX_STAGE_HISTORY = 11;
+static const int MAX_CONFIG_NAME         = 210;
+static const int MAX_PATH_SIZE           = 510;
+static const int MAX_LINE_SIZE           = 2048;
+static const int MAX_STAGE_HISTORY       = 11;
+static const int MAX_COMMIT_MESSAGE_SIZE = 72;
 
 // general functions
 
-int remove_prefix(char *av, char *pat);
+int remove_prefix(char *av, const char *pat);
 void invalid_command();
 int chdir_ghezi();
 void add_to_string(char *src, const char *add1, const char *add2);
@@ -41,6 +52,12 @@ bool is_file_here(const char *path, const char *file);
 bool is_in_file(const char *path, const char *pat);
 char* find_in_map(const char *path, const char *pat);
 bool is_allowed_name(const char *s);
+bool is_file_empty(const char *path);
+char* get_inc(const char *path);
+char *get_stage_path();
+char *get_track_path();
+char *get_head_path();
+
 
 // init
 
@@ -55,13 +72,23 @@ int reset_general_config();
 
 // add
 
-int add_file(char *name);
+int add_file(const char *name);
 int add_dir();
 int show_stage_status();
-int reset_file(char *name);
+int reset_file(const char *name);
 int reset_dir();
 int shift_stage_history(int stp);
 
 // status
 
 int status();
+int deleted_dir_status();
+
+// commit
+
+int commit(const char *message);
+char* creat_new_commit(const char *message);
+int set_message_shortcut(const char *message, const char *short_cut);
+int remove_message_shortcut(const char *short_cut);
+int replace_message_shortcut(const char *message, const char *short_cut);
+char* find_short_cut(const char *short_cut);
