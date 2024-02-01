@@ -251,3 +251,94 @@ char *get_head_path(){
     add_to_string(path, "/", head_name);
     return path;
 }
+
+int add_to_begining(const char *path, const char *s){
+    FILE *f = fopen(path, "r");
+    if(f == NULL)
+        fprintf(stderr, "error while opening file %s in function add_to_begining\n", path);
+    FILE *t = fopen("add_to_begining_tmp.txt", "w");
+    fprintf(t, "%s\n", s);
+    char tmp[MAX_LINE_SIZE];
+    while(fgets(tmp, sizeof(tmp), f))
+        fprintf(t, "%s", tmp);
+    fclose(f);
+    fclose(t);
+    if(system(string_concat("rm", " ", abs_path(path))))
+        return 1;
+    return rename_file("add_to_begining_tmp.txt", path);
+}
+
+bool is_less_equal(struct tm a, struct tm b){
+    if(a.tm_year < b.tm_year)
+        return true;
+    if(a.tm_year > b.tm_year)
+        return false;
+    if(a.tm_mon < b.tm_mon)
+        return true;
+    if(a.tm_mon > b.tm_mon)
+        return false;
+    if(a.tm_mday < b.tm_mday)
+        return true;
+    if(a.tm_mday > b.tm_mday)
+        return false;
+    if(a.tm_hour < b.tm_hour)
+        return true;
+    if(a.tm_hour > b.tm_hour)
+        return false;
+    if(a.tm_min < b.tm_min)
+        return true;
+    if(a.tm_min > b.tm_min)
+        return false;
+    if(a.tm_sec > b.tm_sec)
+        return false;
+    return true;
+}
+
+char* string_concat2(const char *s1, const char *s2){
+    char *s = malloc(strlen(s1) + strlen(s2) + 100);
+    strcpy(s, s1);
+    strcpy(s + strlen(s), s2);
+    return s;
+}
+
+char* string_concat(const char *s1, const char *s2, const char *s3){
+    return string_concat2(string_concat2(s1, s2), s3);
+}
+
+int get_num(const char *dig){
+    int x = 0, len = strlen(dig);
+    for(int i = 0; i < len; i++){
+        x *= 10;
+        x += dig[i] - '0';
+    }
+    return x;
+}
+
+struct tm make_tm_from_date(const char *cdate){
+    char *date = malloc(1024);
+    strcpy(date, cdate);
+    struct tm cur;
+    cur.tm_hour = cur.tm_min = cur.tm_sec = 0;
+    int id = 0;
+    while(date[id] != '/')
+        id++;
+    date[id] = '\0';
+    cur.tm_year = get_num(date) - 1900;
+    int keep = id;
+    while(date[id] != '/')
+        id++;
+    date[id] = '\0';
+    cur.tm_mon = get_num(date + keep + 1);
+    cur.tm_mday = get_num(date + id + 1);
+    return cur;
+}
+
+char* get_commit_path(char *commit_id){
+    char *path = get_ghezi_wd();
+    add_to_string(path, "/commits/", commit_id);
+    return path;
+}
+
+bool is_white_space(char c){
+    return c == ' ' || c == '\n' || c == '\0' || c == '\t';
+}

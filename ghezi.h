@@ -24,6 +24,7 @@ static const char *commit_message = "message.txt";
 static const char *commit_branch = "branch_name.txt";
 static const char *head_name = "HEAD_commit.txt";
 static const char *msg_shortcuts = "commit_message_shortcuts.txt";
+static const char *all_commits = "all_commits_ids.txt";
 
 static const char *stage_history[11] = {"stage.txt", "stage0.txt", "stage1.txt", "stage2.txt", "stage3.txt", "stage4.txt", "stage5.txt", "stage6.txt", "stage7.txt", "stage8.txt", "stage9.txt"};
 
@@ -32,6 +33,7 @@ static const int MAX_PATH_SIZE           = 510;
 static const int MAX_LINE_SIZE           = 2048;
 static const int MAX_STAGE_HISTORY       = 11;
 static const int MAX_COMMIT_MESSAGE_SIZE = 72;
+
 
 // general functions
 
@@ -54,9 +56,17 @@ char* find_in_map(const char *path, const char *pat);
 bool is_allowed_name(const char *s);
 bool is_file_empty(const char *path);
 char* get_inc(const char *path);
-char *get_stage_path();
-char *get_track_path();
-char *get_head_path();
+char* get_stage_path();
+char* get_track_path();
+char* get_head_path();
+char* get_commit_path(char *commit_id);
+int add_to_begining(const char *path, const char *s);
+bool is_less_equal(struct tm a, struct tm b);
+char* string_concat2(const char *s1, const char *s2);
+char* string_concat(const char *s1, const char *s2, const char *s3);
+struct tm make_tm_from_date(const char *date);
+int get_num(const char *dig);
+bool is_white_space(char c);
 
 
 // init
@@ -86,9 +96,23 @@ int deleted_dir_status();
 
 // commit
 
-int commit(const char *message);
-char* creat_new_commit(const char *message);
+int commit(const char *message, bool force_commit);
+char* creat_new_commit(const char *message, bool silent);
 int set_message_shortcut(const char *message, const char *short_cut);
 int remove_message_shortcut(const char *short_cut);
 int replace_message_shortcut(const char *message, const char *short_cut);
 char* find_short_cut(const char *short_cut);
+int print_commit_informations(const char *commit_id);
+
+// branch
+
+int make_branch(const char *name);
+int show_all_branchs();
+
+// log
+
+int show_all_logs(int num);
+int show_all_branch_commits(char *branch_name);
+int show_all_personal_commits(char *person_name);
+int show_all_word_match_commits(int num, char **words);
+int show_all_during_commits(struct tm _from, struct tm _before);

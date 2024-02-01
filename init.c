@@ -46,7 +46,7 @@ int run_init(int argc, char * const argv[]) {
         f = fopen(new_commit_id_keeper, "w");
         if(f == NULL)
             return 1;
-        fprintf(f, "%d", 1);
+        fprintf(f, "%d", 0);
         fclose(f);
         f = fopen(head_name, "w");
         fclose(f);
@@ -54,6 +54,14 @@ int run_init(int argc, char * const argv[]) {
         fclose(f);
         f = fopen(branch_name, "w");
         fprintf(f, "master");
+        fclose(f);
+        f = fopen(all_commits, "w");
+        fclose(f);
+
+        // making branch folder
+        if(mkdir("branch", 0755))
+            return 1;
+        f = fopen("branch/master", "w");
         fclose(f);
 
         // making stage keeper and tracker
@@ -84,7 +92,9 @@ int run_init(int argc, char * const argv[]) {
             return 1;
         
         // set local configs
-        return update_config(name, email);
+        if(update_config(name, email))
+            return 1;
+        return commit(" ", true);
     }else if(res == 0) {
         printf("ghezi repository has already initialized\n");
     }

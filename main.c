@@ -110,26 +110,26 @@ int main(int argc, char *argv[]) {
     }
 
     if(!strcmp(argv[1], "commit")){
-        if(argc < 3)
+        if(argc < 3 || argc > 4)
             return invalid_command(), 0;
         if(argc < 4)
             return fprintf(stderr, "please set a message(or shortcut) for your commit\n"), 0;
         if(!strcmp(argv[2], "-m")){
             if(strlen(argv[3]) > MAX_COMMIT_MESSAGE_SIZE)
                 return fprintf(stderr, "too long message!\n"), 0;
-            return commit(argv[3]);
+            return commit(argv[3], false);
         }
         if(!strcmp(argv[2], "-s")){
             char *msg = find_short_cut(argv[3]);
             if(msg[0] == '\0')
                 return fprintf(stderr, "shortcut %s does not exist\n", argv[3]), 0;
-            return commit(msg);
+            return commit(msg, false);
         }
         return invalid_command(), 0;
     }
 
     if(!strcmp(argv[1], "set")){
-        if(argc < 6 || strcmp(argv[2], "-m") || strcmp(argv[4], "-s"))
+        if(argc != 6 || strcmp(argv[2], "-m") || strcmp(argv[4], "-s"))
             return invalid_command(), 0;
         if(strlen(argv[3]) > MAX_COMMIT_MESSAGE_SIZE)
             return fprintf(stderr, "too long commit message!\n"), 0;
@@ -137,17 +137,50 @@ int main(int argc, char *argv[]) {
     }
 
     if(!strcmp(argv[1], "remove")){
-        if(argc < 4 || strcmp(argv[2], "-s"))
+        if(argc != 4 || strcmp(argv[2], "-s"))
             return invalid_command(), 0;
         return remove_message_shortcut(argv[3]);
     }
 
     if(!strcmp(argv[1], "replace")){
-        if(argc < 6 || strcmp(argv[2], "-m") || strcmp(argv[4], "-s"))
+        if(argc != 6 || strcmp(argv[2], "-m") || strcmp(argv[4], "-s"))
             return invalid_command(), 0;
         if(strlen(argv[3]) > MAX_COMMIT_MESSAGE_SIZE)
             return fprintf(stderr, "too long commit message!\n"), 0;
         return replace_message_shortcut(argv[3], argv[5]);
+    }
+
+    if(!strcmp(argv[1], "branch")){
+        if(argc > 3 || argc < 2)
+            return invalid_command(), 0;
+        if(argc == 2)
+            return show_all_branchs();
+        return make_branch(argv[2]);
+    }
+
+    if(!strcmp(argv[1], "log")){
+        if(argc < 3)
+            return show_all_logs((int)1e9);
+        if(!strcmp(argv[2], "-search")){
+            int n = argc - 3;
+            char **words = (char **)malloc(n * sizeof(char *));
+            for(int i = 0; i < n; i++)
+                words[i] = argv[3 + i];
+            return show_all_word_match_commits(n, words);
+        }
+        if(argc != 4)
+            return invalid_command(), 0;
+        if(!strcmp(argv[2], "-n"))
+            return show_all_logs(get_num(argv[3]));
+        if(!strcmp(argv[2], "-branch"))
+            return show_all_branch_commits(argv[3]);
+        if(!strcmp(argv[2], "-author"))
+            return show_all_personal_commits(argv[3]);
+        if(!strcmp(argv[2], "-since"))
+            return show_all_during_commits(make_tm_from_date(argv[3]), make_tm_from_date("987684/0/0"));
+        if(!strcmp(argv[2], "-before"))
+            return show_all_during_commits(make_tm_from_date("0/0/0"), make_tm_from_date(argv[3]));
+        return invalid_command(), 0;
     }
 
     return invalid_command(), 0;
