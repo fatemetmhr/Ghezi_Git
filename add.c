@@ -211,41 +211,24 @@ int reset_dir(){ // add all files in this directory
     return 0;
 }
 
-int undo_add(){
-    char *path = get_ghezi_wd();
-    char *ptmp = malloc(2048);
-    strcpy(ptmp, path);
-    add_to_string(ptmp, "/", "tmp.txt");
-    add_to_string(path, "/", stage_name);
-    FILE *stages = fopen(path, "r");
-    FILE *tmp = fopen(ptmp, "w");
-    if(stages == NULL || tmp == NULL)
+int shift_stage_history(int stp){
+    char cwd[1024];
+    if(getcwd(cwd, sizeof(cwd)) == NULL)
         return 1;
-    char *rl_path[1024], *cp_path[1024];
-    int cnt = 0;
-    char *rl = malloc(1024);
-    char *cp = malloc(1024);
-    while(fscanf(stages, "%s %s\n", rl, cp) > 0){
-        if(!strcmp(rl, "NULL")){
-            for(int i = 0; i < cnt; i++)
-                fprintf(tmp, "%s %s\n", rl_path[i], cp_path[i]);
-            cnt = 0;
-        }
-        if(cnt == 1024)
-            return fprintf(stderr, "more thatn 1024 files found!"), 1;
-        rl_path[cnt] = malloc(1024);
-        strcpy(rl_path[cnt], rl);
-        cp_path[cnt] = malloc(1024);
-        strcpy(cp_path[cnt], cp);
-        cnt++;
+    if(chdir_ghezi())
+        return 1;
+    if(stp == -1){
+        for(int i = 1; i < MAX_STAGE_HISTORY; i++)
+            if(copy_file(stage_history[i], stage_history[i - 1]))
+                return 1;
     }
-    fclose(stages);
-    fclose(tmp);
-    char *s = malloc(2058);
-    s[0] = 'r';
-    s[1] = 'm';
-    add_to_string(s, " ", path);    
-    if(system(s))
+    else{
+        for(int i = MAX_STAGE_HISTORY - 1; i; i--)
+            if(copy_file(stage_history[i - 1], stage_history[i]))
+                return 1;
+    }
+
+    if(chdir(cwd))
         return 1;
-    return rename_file(ptmp, path);
+    return 0;
 }

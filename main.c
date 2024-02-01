@@ -59,11 +59,8 @@ int main(int argc, char *argv[]) {
         int st = 2;
         if(!strcmp(argv[2], "-f"))
             st = 3;
-        char *s = get_ghezi_wd();
-        add_to_string(s, "/", stage_name);
-        FILE *stage = fopen(s, "a");
-        fprintf(stage, "NULL NULL\n");
-        fclose(stage);
+        if(shift_stage_history(1))
+            return 1;
         while(st < argc){
             if(chdir(argv[st]) != 0){
                 if(add_file(argv[st]))
@@ -84,7 +81,7 @@ int main(int argc, char *argv[]) {
         if(argc < 3)
             return invalid_command(), 0;
         if(!strcmp(argv[2], "-undo"))
-            return undo_add();
+            return shift_stage_history(-1);
         int st = 2;
         if(!strcmp(argv[2], "-f"))
             st = 3;

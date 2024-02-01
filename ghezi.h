@@ -15,9 +15,12 @@ static const char *stage_name = "stage.txt";
 static const char *new_name_keeper = "source_name_counter.txt";
 static const char *tracker_name = "tracker.txt";
 
-static const int MAX_CONFIG_NAME = 210;
-static const int MAX_PATH_SIZE   = 510;
-static const int MAX_LINE_SIZE   = 2048;
+static const char *stage_history[11] = {"stage.txt", "stage0.txt", "stage1.txt", "stage2.txt", "stage3.txt", "stage4.txt", "stage5.txt", "stage6.txt", "stage7.txt", "stage8.txt", "stage9.txt"};
+
+static const int MAX_CONFIG_NAME   = 210;
+static const int MAX_PATH_SIZE     = 510;
+static const int MAX_LINE_SIZE     = 2048;
+static const int MAX_STAGE_HISTORY = 11;
 
 // general functions
 
@@ -57,7 +60,7 @@ int add_dir();
 int show_stage_status();
 int reset_file(char *name);
 int reset_dir();
-int undo_add();
+int shift_stage_history(int stp);
 
 // status
 
