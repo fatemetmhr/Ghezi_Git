@@ -31,6 +31,9 @@ int commit(const char *msg, bool frc){
     fclose(head);
     FILE *f = fopen(stage_name, "w");
     fclose(f);
+    f = fopen(last_commit, "w");
+    fprintf(f, "%s", commit_id);
+    fclose(f);
     return copy_file(commit_files, head_name);
 }
 
@@ -85,17 +88,22 @@ char* creat_new_commit(const char *msg, bool silent){
     fprintf(f, "%s", branch);
     fclose(f);
 
+    // is silented
+    if(silent){
+        f = fopen(commit_silented, "w");
+        fclose(f);
+    }
+
     if(!silent)
         printf ("Commit \"%s\" recorded with id %s in %s", msg, id, asctime(cur_tm));
 
     if(chdir("../.."))
         fprintf(stderr, "runtime error in function creat_new_commit\n");
-    if(!silent && add_to_begining(all_commits, id))
+    if(add_to_begining(all_commits, id))
         fprintf(stderr, "runtime error in function creat_new_commit\n");
-    
     if(chdir("branch"))
         fprintf(stderr, "runtime error in function creat_new_commit\n");
-    if(!silent && add_to_begining(branch, id))
+    if(add_to_begining(branch, id))
         fprintf(stderr, "runtime error in function creat_new_commit\n");
 
     if(chdir(cwd))

@@ -12,6 +12,10 @@ void invalid_command(){
     fprintf(stderr, "please enter a valid commnad!");
 }
 
+void runtime_in_function(char *function_name){
+    fprintf(stderr, "runtime in function %s\n", function_name);
+}
+
 void debug(const char *s){
     fprintf(stderr, "%s\n", s);
 }
@@ -308,6 +312,8 @@ char* string_concat(const char *s1, const char *s2, const char *s3){
 int get_num(const char *dig){
     int x = 0, len = strlen(dig);
     for(int i = 0; i < len; i++){
+        if(dig[i] > '9' || dig[i] < '0')
+            return -1;
         x *= 10;
         x += dig[i] - '0';
     }
@@ -341,4 +347,103 @@ char* get_commit_path(char *commit_id){
 
 bool is_white_space(char c){
     return c == ' ' || c == '\n' || c == '\0' || c == '\t';
+}
+
+int remove_all_here(){
+    struct dirent *entry;
+    DIR *dir = opendir(".");
+    if(dir == NULL)
+        return 1;
+    while((entry = readdir(dir)) != NULL) if(is_allowed_name(entry->d_name))
+        if(system(string_concat2("rm -rf ", entry->d_name)))
+            return 1;
+    closedir(dir);
+    return 0;
+}
+
+bool is_deleted(char *path){
+    FILE *f = fopen(path, "r");
+    if(f == NULL)
+        return true;
+    fclose(f);
+    return false;
+}
+
+int make_file(const char *cppath){
+    char *path = malloc(1024);
+    strcpy(path, cppath);
+    char cwd[1024];
+    if(getcwd(cwd, sizeof(cwd)) == NULL)
+        return 1;
+    
+    if(chdir("/"))
+        return 1;
+    int last = 1, len = strlen(path), i = 1;
+    while(i < len){
+        if(path[i] == '/'){
+            char name[1024];
+            int pt = 0;
+            for(int j = last; j < i; j++)
+                name[pt++] = path[j];
+            name[pt] = '\0';
+            if(chdir(name)){
+                if(mkdir(name, 0755) || chdir(name))
+                    return 1;
+            }
+            last = i + 1;
+        }
+        i++;
+    }
+    char file_name[1024];
+    int pt = 0;
+    for(int i = last; i < len; i++)
+        file_name[pt++] = path[i];
+    FILE *f = fopen(file_name, "w");
+    fclose(f);
+    return chdir(cwd) != 0;
+}
+
+bool is_in_head(){ // error -> return 0
+    char cwd[1024];
+    if(getcwd(cwd, sizeof(cwd)) == NULL)
+        return runtime_in_function("is_in_head"), 0;
+    if(chdir_ghezi())
+        return runtime_in_function("is_in_head"), 0;
+    char id[1024], br[1024], head[1024];
+    FILE *f = fopen(last_commit, "r");
+    if(f == NULL)
+        return runtime_in_function("is_in_head"), 0;
+    fscanf(f, "%s", id);
+    fclose(f);
+
+    f = fopen(branch_name, "r");
+    if(f == NULL)
+        return runtime_in_function("is_in_head"), 0;
+    fscanf(f, "%s", br);
+    fclose(f);
+
+    if(chdir("branch"))
+        return runtime_in_function("is_in_head"), 0;
+    
+    f = fopen(br, "r");
+    if(f == NULL)
+        return runtime_in_function("is_in_head"), 0;
+    fscanf(f, "%s \n", head);
+    fclose(f);
+    bool re = !strcmp(head, id);
+
+    if(chdir(cwd))
+        return runtime_in_function("is_in_head"), 0;
+    return re;
+}
+
+bool is_commit_silented(const char *id){
+    char *dir = get_ghezi_wd();
+    add_to_string(dir, "/commits/", id);
+    dir = string_concat(dir, "/", commit_silented);
+    FILE *f = fopen(dir, "r");
+    if(f == NULL)
+        return false;
+    fclose(f);
+    return true;
 }

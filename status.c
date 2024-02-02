@@ -1,97 +1,73 @@
 #include "ghezi.h"
 
-int status(){ // status of while repo
+bool status(bool silent){ // status of whole repo -> error returnrs 1
     char *spath = get_stage_path();
     char *tpath = get_track_path();
     char *head_path = get_head_path();
+    bool re = false;
 
-    struct dirent *entry;
-    DIR *dir = opendir(".");
-    if (dir == NULL)
-        return 1;
     char cwd[1024];
     if(getcwd(cwd, sizeof(cwd)) == NULL)
-        return 1;
-    char *av[1024];
-    bool mark[1024];
-    memset(mark, 0, sizeof(mark));
-    int n = 0;
-    while ((entry = readdir(dir)) != NULL) if(is_allowed_name(entry->d_name)){
-        if(entry->d_type == DT_DIR){
-            if(chdir(entry->d_name))
-                return 1;
-            if(status())
-                return 1;
-            if(chdir(".."))
-                return 1;
-        }
-        else{
-            char *name = malloc(1024);
-            strcpy(name, cwd);
-            add_to_string(name, "/", entry->d_name);
-            if(!is_in_file(tpath, name))
-                printf("file %s : -A\n", name);
-            else
-                av[n++] = name;
-        }
-    }
-    closedir(dir);
-
+        return runtime_in_function("status"), 1;
     FILE *track = fopen(tpath, "r");
     if(track == NULL)
-        return 1;
+        return runtime_in_function("status"), 1;
     char s[1024];
-    //debug("ok ok ");
-    //print_cwd();
     while(fscanf(track, "%s \n", s) > 0){
-        //debug(s);
-        if(!is_file_here(cwd, s))
-            continue;
-        bool re = false;
-        for(int i = 0; i < n; i++) 
-            re |= (!strcmp(s, av[i]));
-        if(!re){
-            if(is_in_file(spath, s))
-                printf("file %s : +D\n", s);
+        char *last_stage = find_in_map(head_path, s);
+        bool is_staged = strlen(find_in_map(spath, s));
+        int sts = -1; // sts = 0 -> A, 1 -> M, 2 -> D, -1 -> no change
+        if(is_deleted(s)){
+            if(strcmp(last_stage, "NULL"))
+                sts = 2;
             else
-                printf("file %s : -D\n", s);
+                sts = -1;
         }
+        else if(strlen(last_stage)){
+            if(are_diff(last_stage, s))
+                sts = 1;
+            else
+                sts = -1;
+        }
+        else
+            sts = 0;
+        re |= (sts >= 0);
+        if(!silent && sts >= 0)
+            printf("file %s: %c%c\n", s, is_staged ? '+' : '-', sts == 0 ? 'A' : (sts == 1 ? 'M' : 'D'));
     }
     fclose(track);
-
-    for(int i = 0; i < n; i++){
-        char *cppath = find_in_map(spath, av[i]);
-        if(strlen(cppath) == 0){
-            cppath = find_in_map(head_path, av[i]);
-            if(strlen(cppath) && are_diff(cppath, av[i]))
-                printf("file %s : -M\n", av[i]);
-            else
-                printf("file %s : -A\n", av[i]);
-        }
-        else if(are_diff(cppath, av[i]))
-            printf("file %s : +M\n", av[i]);
-    }
-    return 0;    
+    if(chdir_ghezi() || chdir(".."))
+        return runtime_in_function("status"), 1;
+    re |= find_untracking_files(silent);
+    if(chdir(cwd))
+        return runtime_in_function("status"), 1;
+    return re;    
 }
 
 // in code akharin yadegare 18 salegime! tavalodam mobarak kheili bi dalil :)
 
-int deleted_dir_status(){
-    if(chdir_ghezi())
-        return 1;
-    FILE *f = fopen(tracker_name, "r");
-    char *spath = get_stage_path();
-    char s[1024];
-    while(fscanf(f, "%s \n", s) > 0){
-        char *name = make_par_dir(s);
-        if(!chdir(s))
-            continue;
-        add_to_string(s, "/", name);
-        if(is_in_file(spath, s))
-            printf("file %s : +D\n", s);
-        else
-            printf("file %s : -D\n", s);
+bool find_untracking_files(bool silent){
+    char *tpath = get_track_path();
+    struct dirent *entry;
+    DIR *dir = opendir(".");
+    bool re = false;
+    if(dir == NULL)
+        return runtime_in_function("find_untracking_files"), 1;
+    char *path;
+    while((entry = readdir(dir)) != NULL) if(is_allowed_name(entry->d_name)){
+        if(entry->d_type == DT_DIR){
+            if(chdir(entry->d_name))
+                return runtime_in_function("find_untracking_files"), 1;
+            re |= find_untracking_files(silent);
+            if(chdir(".."))
+                return runtime_in_function("find_untracking_files"), 1;
+        }
+        else if(!is_in_file(tpath, (path = abs_path(entry->d_name)))){
+            re = true;
+            if(!silent)
+                printf("file %s: -A\n", path);
+        }
     }
-    fclose(f);
-    return 0;
+    closedir(dir);
+    return re;
 }

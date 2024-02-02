@@ -104,25 +104,38 @@ int main(int argc, char *argv[]) {
     if(!strcmp(argv[1], "status")){
         if(argc > 2)
             return invalid_command(), 0;
-        if(deleted_dir_status())
-            return 1;
-        return status();
+        status(false);
+        return 0;
     }
 
     if(!strcmp(argv[1], "commit")){
-        if(argc < 3 || argc > 4)
+        if(argc < 3 || argc > 5)
             return invalid_command(), 0;
         if(argc < 4)
             return fprintf(stderr, "please set a message(or shortcut) for your commit\n"), 0;
+        bool forced = false;
+        if(!strcmp(argv[2], "-f")){
+            forced = true;
+            for(int i = 3; i < argc; i++)
+                argv[i - 1] = argv[i];
+            argc--;
+        }
+
+        if(argc > 4)
+            return invalid_command(), 0;
         if(!strcmp(argv[2], "-m")){
             if(strlen(argv[3]) > MAX_COMMIT_MESSAGE_SIZE)
                 return fprintf(stderr, "too long message!\n"), 0;
+            if(!forced && !is_in_head())
+                return fprintf(stderr, "Commiting is only available in the HEAD of a branch!\n"), 0;
             return commit(argv[3], false);
         }
         if(!strcmp(argv[2], "-s")){
             char *msg = find_short_cut(argv[3]);
             if(msg[0] == '\0')
                 return fprintf(stderr, "shortcut %s does not exist\n", argv[3]), 0;
+            if(!forced && !is_in_head())
+                return fprintf(stderr, "Commiting is only available in the HEAD of a branch!\n"), 0;
             return commit(msg, false);
         }
         return invalid_command(), 0;
@@ -181,6 +194,25 @@ int main(int argc, char *argv[]) {
         if(!strcmp(argv[2], "-before"))
             return show_all_during_commits(make_tm_from_date("0/0/0"), make_tm_from_date(argv[3]));
         return invalid_command(), 0;
+    }
+
+    if(!strcmp(argv[1], "checkout")){
+        bool forced = false;
+        if(argc >= 2 && !strcmp(argv[2], "-f")){
+            forced = true;
+            for(int i = 3; i < argc; i++)
+                argv[i - 1] = argv[i];
+            argc--;
+        }
+        if(argc != 3)
+            return invalid_command(), 0;
+        if(!forced && status(true))
+            return printf("Some files has been changed but not commited. Checkout failed!\n"), 0;
+        if(!strcmp(argv[2], "HEAD"))
+            return checkout_to_head();
+        if(get_num(argv[2]) != -1)
+            return checkout_to_commit(argv[2]);
+        return checkout_to_branch(argv[2]);
     }
 
     return invalid_command(), 0;

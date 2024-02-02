@@ -22,9 +22,11 @@ static const char *commit_time = "time.txt";
 static const char *commit_user = "information.txt";
 static const char *commit_message = "message.txt";
 static const char *commit_branch = "branch_name.txt";
+static const char *commit_silented = "is_silented.txt";
 static const char *head_name = "HEAD_commit.txt";
 static const char *msg_shortcuts = "commit_message_shortcuts.txt";
 static const char *all_commits = "all_commits_ids.txt";
+static const char *last_commit = "last_commit_id.txt";
 
 static const char *stage_history[11] = {"stage.txt", "stage0.txt", "stage1.txt", "stage2.txt", "stage3.txt", "stage4.txt", "stage5.txt", "stage6.txt", "stage7.txt", "stage8.txt", "stage9.txt"};
 
@@ -67,6 +69,13 @@ char* string_concat(const char *s1, const char *s2, const char *s3);
 struct tm make_tm_from_date(const char *date);
 int get_num(const char *dig);
 bool is_white_space(char c);
+int remove_all_here();
+bool is_deleted(char *file_path);
+void runtime_in_function(char *function_name);
+char* abs_path(const char *path);
+int make_file(const char *file_abs_path);
+bool is_in_head();
+bool is_commit_silented(const char *commit_id);
 
 
 // init
@@ -91,8 +100,8 @@ int shift_stage_history(int stp);
 
 // status
 
-int status();
-int deleted_dir_status();
+bool status(bool silent);
+bool find_untracking_files(bool silent);
 
 // commit
 
@@ -116,3 +125,9 @@ int show_all_branch_commits(char *branch_name);
 int show_all_personal_commits(char *person_name);
 int show_all_word_match_commits(int num, char **words);
 int show_all_during_commits(struct tm _from, struct tm _before);
+
+// checkout
+
+int checkout_to_commit(char *commit_id);
+int checkout_to_branch(char *branch_name);
+int checkout_to_head();

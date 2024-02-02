@@ -26,7 +26,7 @@ int add_file(const char *name){ // in this directory, will be return here as wel
         if(stage == NULL)
             return 1;
         fprintf(stage, "%s NULL\n", fpath);
-        return fprintf(stderr, "file or directory %s doesn't exist or has been deleted!", name), 0;
+        return fprintf(stderr, "file or directory %s doesn't exist or has been deleted!\n", name), 0;
     }
     
     // find new name for copy of the file in source
@@ -59,6 +59,25 @@ int add_file(const char *name){ // in this directory, will be return here as wel
     if(!found)
         fprintf(trk, "%s\n", fpath);
     fclose(trk);
+
+    if(!found){
+        if(chdir("commits"))
+            return 1;
+        struct dirent *entry;
+        DIR *dir = opendir(".");
+        if(dir == NULL)
+            return 1;
+        while((entry = readdir(dir)) != NULL) if(is_allowed_name(entry->d_name)){
+            if(chdir(entry->d_name))
+                return 1;
+            FILE *f = fopen(commit_paths, "a");
+            fprintf(f, "%s NULL\n", fpath);
+            fclose(f);
+            if(chdir(".."))
+                return 1;
+        }
+        closedir(dir);
+    }
 
     if(chdir(cwd) != 0)
         return 1;

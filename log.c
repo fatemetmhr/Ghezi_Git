@@ -10,7 +10,7 @@ int show_all_logs(int n){
     for(int i = 0; i < n; i++){
         if(fscanf(comm, "%s \n", name) <= 0)
             break;
-        if(print_commit_informations(name))
+        if(!is_commit_silented(name) && print_commit_informations(name))
             return 1;
     }
     fclose(comm);
@@ -25,7 +25,7 @@ int show_all_branch_commits(char *bname){
         return fprintf(stderr, "no such branch exists"), 0;
     char *name = malloc(1024);
     while(fscanf(f, "%s \n", name) > 0)
-        if(print_commit_informations(name))
+        if(!is_commit_silented(name) && print_commit_informations(name))
             return 1;
     fclose(f);
     return 0;
@@ -41,7 +41,7 @@ int show_all_personal_commits(char *pname){
         char s[1024];
         fscanf(infor, "%s", s);
         fclose(infor);
-        if(!strcmp(s, pname) && print_commit_informations(name))
+        if(!strcmp(s, pname) && !is_commit_silented(name) && print_commit_informations(name))
             return 1;
     }
     fclose(f);
@@ -69,7 +69,7 @@ int show_all_word_match_commits(int n, char **pat){
                 ptr = strstr(ptr + 1, pat[i]);
             }
         }
-        if(re && print_commit_informations(name))
+        if(re && !is_commit_silented(name) && print_commit_informations(name))
             return 1;
     }
     fclose(comm);
@@ -90,7 +90,7 @@ int show_all_during_commits(struct tm frm, struct tm bfr){
         struct tm cur;
         fscanf(tim, "%d %d %d %d %d %d", &cur.tm_year, &cur.tm_mon, &cur.tm_mday, &cur.tm_hour, &cur.tm_min, &cur.tm_sec);
         fclose(tim);
-        if(is_less_equal(frm, cur) && is_less_equal(cur, bfr) && print_commit_informations(name))
+        if(is_less_equal(frm, cur) && is_less_equal(cur, bfr) && !is_commit_silented(name) && print_commit_informations(name))
             return 1;
     }
     fclose(comm);
