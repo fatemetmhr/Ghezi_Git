@@ -1,6 +1,8 @@
 #include "ghezi.h"
 
 int make_branch(const char *name){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi())
         return 1;
     char path[1024];
@@ -37,6 +39,8 @@ int make_branch(const char *name){
 }
 
 int show_all_branchs(){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi() || chdir("branch"))
         return 1;
     struct dirent *entry;

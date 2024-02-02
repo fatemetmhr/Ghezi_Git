@@ -1,6 +1,8 @@
 #include "ghezi.h"
 
 int checkout_to_commit(char *id){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi())
         return 1;
     FILE *cur_commit = fopen(last_commit, "w");
@@ -12,7 +14,7 @@ int checkout_to_commit(char *id){
     if(remove_all_here())
         return 1;
     if(chdir(string_concat(".ghezi/commits", "/", id)))
-        return 1;
+        return fprintf(stderr, "no such branch or commit id exist!\n"), 0;
     FILE *f = fopen(commit_paths, "r");
     if(f == NULL)
         return 1;
@@ -41,11 +43,13 @@ int checkout_to_commit(char *id){
 }
 
 int checkout_to_branch(char *name){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi() || chdir("branch"))
         return 1;
     FILE *f = fopen(name, "r");
     if(f == NULL)
-        return 1;
+        return fprintf(stderr, "no such branch or commit id exist!\n"), 0;
     char id[1024];
     fscanf(f, "%s", id);
     fclose(f);
@@ -53,6 +57,8 @@ int checkout_to_branch(char *name){
 }
 
 int checkout_to_head(){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi())
         return 1;
     FILE *f = fopen(branch_name, "r");

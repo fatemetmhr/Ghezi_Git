@@ -1,6 +1,8 @@
 #include "ghezi.h"
 
 int commit(const char *msg, bool frc){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi())
         return 1;
     if(!frc && is_file_empty(stage_name))
@@ -38,6 +40,8 @@ int commit(const char *msg, bool frc){
 }
 
 char* creat_new_commit(const char *msg, bool silent){
+    if(get_silent())
+        return 0;
     char cwd[1024];
     if(getcwd(cwd, sizeof(cwd)) == NULL)
         fprintf(stderr, "runtime error in function creat_new_commit\n");
@@ -112,6 +116,8 @@ char* creat_new_commit(const char *msg, bool silent){
 }
 
 int set_message_shortcut(const char *msg, const char *short_cut){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi())
         return 1;
     FILE *f = fopen(msg_shortcuts, "a");
@@ -121,6 +127,8 @@ int set_message_shortcut(const char *msg, const char *short_cut){
 }
 
 int remove_message_shortcut(const char *short_cut){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi())
         return 1;
     FILE *f = fopen(msg_shortcuts, "r");
@@ -144,6 +152,8 @@ int remove_message_shortcut(const char *short_cut){
 }
 
 int replace_message_shortcut(const char *msg, const char *short_cut){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi())
         return 1;
     if(!is_in_file(msg_shortcuts, short_cut))
@@ -154,22 +164,16 @@ int replace_message_shortcut(const char *msg, const char *short_cut){
 }
 
 char *find_short_cut(const char *short_cut){
-    if(chdir_ghezi())
-        fprintf(stderr, "runtime error in function find_short_cut\n");
-    FILE *f = fopen(msg_shortcuts, "r");
-    char s[MAX_LINE_SIZE];
-    while(fgets(s, sizeof(s), f)) if(!remove_prefix(s, short_cut)){
-        char *msg = malloc(MAX_COMMIT_MESSAGE_SIZE + 100);
-        strcpy(msg, s + 1);
-        msg[strlen(msg) - 1] = '\0';
-        return msg;
-    }
-    char *x = malloc(10);
-    x[0] = '\0';
-    return x;
+    if(get_silent())
+        return 0;
+    char *dir = get_ghezi_wd();
+    add_to_string(dir, "/", msg_shortcuts);
+    return find_in_map_with_space(dir, short_cut);
 }
 
 int print_commit_informations(const char *id){
+    if(get_silent())
+        return 0;
     char *dir = get_ghezi_wd();
     add_to_string(dir, "/commits/", id);
 

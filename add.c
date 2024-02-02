@@ -1,6 +1,8 @@
 #include "ghezi.h"
 
 int add_file(const char *name){ // in this directory, will be return here as well, file didn't found -> return 0;
+    if(get_silent())
+        return 0;
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) == NULL) 
         return 1;
@@ -85,6 +87,8 @@ int add_file(const char *name){ // in this directory, will be return here as wel
 }
 
 int add_dir(){ // add all files in this directory
+    if(get_silent())
+        return 0;
     struct dirent *entry;
     DIR *dir = opendir(".");
     if(dir == NULL)
@@ -108,6 +112,8 @@ int add_dir(){ // add all files in this directory
 }
 
 int show_stage_status(){
+    if(get_silent())
+        return 0;
     char cwd[1024];
     if(getcwd(cwd, sizeof(cwd)) == NULL)
         return 1;
@@ -165,6 +171,8 @@ int show_stage_status(){
 
 
 int reset_file(const char *name){
+    if(get_silent())
+        return 0;
     char cwd[1024], file[1024];
     if (getcwd(cwd, sizeof(cwd)) == NULL) 
         return 1;
@@ -194,6 +202,8 @@ int reset_file(const char *name){
 }
 
 int reset_dir(){ // add all files in this directory
+    if(get_silent())
+        return 0;
     struct dirent *entry;
     DIR *dir = opendir(".");
     if(dir == NULL)
@@ -217,6 +227,8 @@ int reset_dir(){ // add all files in this directory
 }
 
 int shift_stage_history(int stp){
+    if(get_silent())
+        return 0;
     char cwd[1024];
     if(getcwd(cwd, sizeof(cwd)) == NULL)
         return 1;

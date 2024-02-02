@@ -10,6 +10,7 @@
 
 static const char *general_configs_path = "/Users/fatemetmhr/Documents/ghezi";
 static const char *general_configs_name = "general_config_paths.txt";
+static const char *general_alias = "general_alias.txt";
 static const char *last_general_name = "general_name.txt";
 static const char *last_general_email = "general_email.txt";
 static const char *stage_name = "stage.txt";
@@ -27,6 +28,7 @@ static const char *head_name = "HEAD_commit.txt";
 static const char *msg_shortcuts = "commit_message_shortcuts.txt";
 static const char *all_commits = "all_commits_ids.txt";
 static const char *last_commit = "last_commit_id.txt";
+static const char *alias_name = "alias.txt";
 
 static const char *stage_history[11] = {"stage.txt", "stage0.txt", "stage1.txt", "stage2.txt", "stage3.txt", "stage4.txt", "stage5.txt", "stage6.txt", "stage7.txt", "stage8.txt", "stage9.txt"};
 
@@ -76,6 +78,10 @@ char* abs_path(const char *path);
 int make_file(const char *file_abs_path);
 bool is_in_head();
 bool is_commit_silented(const char *commit_id);
+char* find_in_map_with_space(const char *file_path, const char *pat);
+bool is_valid_command(const char *command);
+bool get_silent();
+bool is_commit_id_valid(const char *commit_id);
 
 
 // init
@@ -88,6 +94,8 @@ int update_config(char *name, char *email);
 int update_config_single(char *name, int ty);
 int update_general_config(char *infor, int ty);
 int reset_general_config();
+int set_alias(char *alias, char *command);
+int set_general_alias(char *alias, char *command);
 
 // add
 

@@ -9,7 +9,8 @@ int min(int a, int b){
 }
 
 void invalid_command(){
-    fprintf(stderr, "please enter a valid commnad!");
+    if(!get_silent())
+        fprintf(stderr, "please enter a valid commnad!");
 }
 
 void runtime_in_function(char *function_name){
@@ -267,7 +268,7 @@ int add_to_begining(const char *path, const char *s){
         fprintf(t, "%s", tmp);
     fclose(f);
     fclose(t);
-    if(system(string_concat("rm", " ", abs_path(path))))
+    if(system(string_concat2("rm ", abs_path(path))))
         return 1;
     return rename_file("add_to_begining_tmp.txt", path);
 }
@@ -355,7 +356,7 @@ int remove_all_here(){
     if(dir == NULL)
         return 1;
     while((entry = readdir(dir)) != NULL) if(is_allowed_name(entry->d_name))
-        if(system(string_concat2("rm -rf ", entry->d_name)))
+        if(system(string_concat2("rm -rf ", string_concat("\"", entry->d_name, "\""))))
             return 1;
     closedir(dir);
     return 0;
@@ -446,4 +447,31 @@ bool is_commit_silented(const char *id){
         return false;
     fclose(f);
     return true;
+}
+
+char* find_in_map_with_space(const char *file_path, const char *pat){
+    FILE *f = fopen(file_path, "r");
+    char *emp = malloc(10);
+    emp[0] = '\0';
+    if(f == NULL)
+        return emp;
+    char s[MAX_LINE_SIZE];
+    while(fgets(s, sizeof(s), f)) if(!remove_prefix(s, pat)){
+        char *msg = malloc(MAX_COMMIT_MESSAGE_SIZE);
+        strcpy(msg, s + 1);
+        msg[strlen(msg) - 1] = '\0';
+        return msg;
+    }
+    fclose(f);
+    return emp;
+}
+
+bool is_valid_command(const char *command){
+    return !system(string_concat2("ghezi -SILENT ", command));
+}
+
+bool is_commit_id_valid(const char *id){
+    char *dir = get_ghezi_wd();
+    add_to_string(dir, "/", all_commits);
+    return is_in_file(dir, id);
 }

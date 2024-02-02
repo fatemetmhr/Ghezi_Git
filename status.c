@@ -1,6 +1,8 @@
 #include "ghezi.h"
 
 bool status(bool silent){ // status of whole repo -> error returnrs 1
+    if(get_silent())
+        return 0;
     char *spath = get_stage_path();
     char *tpath = get_track_path();
     char *head_path = get_head_path();
@@ -47,6 +49,8 @@ bool status(bool silent){ // status of whole repo -> error returnrs 1
 // in code akharin yadegare 18 salegime! tavalodam mobarak kheili bi dalil :)
 
 bool find_untracking_files(bool silent){
+    if(get_silent())
+        return 0;
     char *tpath = get_track_path();
     struct dirent *entry;
     DIR *dir = opendir(".");

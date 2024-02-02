@@ -1,6 +1,8 @@
 #include "ghezi.h"
 
 int run_init(int argc, char * const argv[]) {
+    if(get_silent())
+        return 0;
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) == NULL) 
         return 1;
@@ -38,6 +40,10 @@ int run_init(int argc, char * const argv[]) {
         if(f == NULL)
             return 1;
         fprintf(f, "%d", 0);
+        fclose(f);
+
+        // making alias files
+        f = fopen(alias_name, "w");
         fclose(f);
 
         //making commit directory and counter file and HEAD file and shortcut keeper file and branch name keeper

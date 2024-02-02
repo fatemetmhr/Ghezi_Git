@@ -1,6 +1,8 @@
 #include "ghezi.h"
 
 int show_all_logs(int n){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi())
         return 1;
     FILE *comm = fopen(all_commits, "r");
@@ -18,6 +20,8 @@ int show_all_logs(int n){
 }
 
 int show_all_branch_commits(char *bname){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi() || chdir("branch"))
         return 1;
     FILE *f = fopen(bname, "r");
@@ -32,6 +36,8 @@ int show_all_branch_commits(char *bname){
 }
 
 int show_all_personal_commits(char *pname){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi())
         return 1;
     FILE *f = fopen(all_commits, "r");
@@ -49,6 +55,8 @@ int show_all_personal_commits(char *pname){
 }
 
 int show_all_word_match_commits(int n, char **pat){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi())
         return 1;
     FILE *comm = fopen(all_commits, "r");
@@ -77,6 +85,8 @@ int show_all_word_match_commits(int n, char **pat){
 }
 
 int show_all_during_commits(struct tm frm, struct tm bfr){
+    if(get_silent())
+        return 0;
     if(chdir_ghezi())
         return 1;
     FILE *comm = fopen(all_commits, "r");
