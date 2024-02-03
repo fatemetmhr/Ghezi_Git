@@ -56,7 +56,7 @@ int checkout_to_branch(char *name){
     return checkout_to_commit(id);
 }
 
-int checkout_to_head(){
+int checkout_to_head(int n){
     if(get_silent())
         return 0;
     if(chdir_ghezi())
@@ -64,10 +64,22 @@ int checkout_to_head(){
     FILE *f = fopen(branch_name, "r");
     if(f == NULL)
         return 1;
-    char branch[1024];
-    if(fscanf(f, "%s", branch) <= 0)
-        return 1;
+    char branch[1024], tmp[1024], id[1024];
+    fscanf(f, "%s", branch);
     fclose(f);
-    return checkout_to_branch(branch);
+    if(chdir("branch"))
+        return 1;
+    f = fopen(branch, "r");
+    int keep = n;
+    n++;
+    while(n--){
+        if(fscanf(f, "%s \n", id) <= 0)
+            return fprintf(stderr, "less than %d commits exist in this branch!\n", keep), 0;
+        
+    }
+    if(fscanf(f, "%s \n", tmp) <= 0)
+        return fprintf(stderr, "less than %d commits exist in this branch!\n", keep), 0;
+    fclose(f);
+    return checkout_to_commit(id);
 }
 

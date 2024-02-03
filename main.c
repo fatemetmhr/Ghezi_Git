@@ -97,15 +97,27 @@ int main(int argc, char *argv[]) {
         if(argc < 3)
             return invalid_command(), 1;
         if(!strcmp(argv[2], "-n")){
-            if(argc < 4)
+            if(argc != 4)
                 return invalid_command(), 1;
-            return show_stage_status();
+            return show_stage_status_recursive("~ ", get_num(argv[3]));
+        }
+        if(!strcmp(argv[2], "-redo")){
+            if(argc != 3)
+                return invalid_command(), 1;
+            return redo_add();
         }
         if(silent)
             return 0;
         int st = 2;
         if(!strcmp(argv[2], "-f"))
             st = 3;
+        else if(argc != 3)
+            return invalid_command(), 0;
+        bool wild = false;
+        for(int i = 0; i < argc; i++)
+            wild |= is_wildcard(argv[i]);
+        if(wild)
+            return system(string_concat_master(argc, argv, 2, "-f"));
         if(shift_stage_history(1))
             return 1;
         while(st < argc){
@@ -129,11 +141,21 @@ int main(int argc, char *argv[]) {
             return invalid_command(), 1;
         if(silent)
             return 0;
-        if(!strcmp(argv[2], "-undo"))
+        bool wild = false;
+        for(int i = 0; i < argc; i++)
+            wild |= is_wildcard(argv[i]);
+        if(!strcmp(argv[2], "-undo")){
+            if(argc != 3)
+                return invalid_command(), 0;
             return shift_stage_history(-1);
+        }
         int st = 2;
         if(!strcmp(argv[2], "-f"))
             st = 3;
+        else if(argc != 3)
+            return invalid_command(), 0;
+        if(wild)
+            return system(string_concat_master(argc, argv, 2, "-f"));
         while(st < argc){
             if(chdir(argv[st]) != 0){
                 if(reset_file(argv[st]))
@@ -185,7 +207,7 @@ int main(int argc, char *argv[]) {
             }
             if(!forced && !silent && !is_in_head())
                 return fprintf(stderr, "Commiting is only available in the HEAD of a branch!\n"), 0;
-            return commit(argv[3], false);
+            return commit(argv[3], forced, false);
         }
         if(!strcmp(argv[2], "-s")){
             char *msg = find_short_cut(argv[3]);
@@ -193,7 +215,7 @@ int main(int argc, char *argv[]) {
                 return fprintf(stderr, "shortcut %s does not exist\n", argv[3]), 0;
             if(!forced && !silent && !is_in_head())
                 return fprintf(stderr, "Commiting is only available in the HEAD of a branch!\n"), 0;
-            return commit(msg, false);
+            return commit(msg, forced, false);
         }
         return invalid_command(), 1;
     }
@@ -272,7 +294,13 @@ int main(int argc, char *argv[]) {
         if(!forced && !silent && status(true))
             return printf("Some files has been changed but not commited. Checkout failed!\n"), 0;
         if(!strcmp(argv[2], "HEAD"))
-            return checkout_to_head();
+            return checkout_to_head(0);
+        if(!remove_prefix(argv[2], "HEAD-")){
+            int x = get_num(argv[2]);
+            if(x == -1)
+                return invalid_command(), 0;
+            return checkout_to_head(x);
+        }
         if(is_commit_id_valid(argv[2]))
             return checkout_to_commit(argv[2]);
         return checkout_to_branch(argv[2]);

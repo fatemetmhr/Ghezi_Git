@@ -132,10 +132,21 @@ void add_to_string(char *s, const char *a, const char *b){
 }
 
 int are_diff(const char *path1, const char *path2){ // any error or are diff -> return 1
+    if(!strcmp(path1, path2))
+        return 0;
+    if(!strcmp(path1, "NULL") || !strcmp(path2, "NULL"))
+        return 1;
     FILE *f1 = fopen(path1, "r");
     FILE *f2 = fopen(path2, "r");
-    if(f1 == NULL || f2 == NULL)
-        return fprintf(stderr, "error while opening files %s %s\n", path1, path2), 1;
+    if(f1 == NULL && f2 == NULL)
+        return 0;
+    if(f1 == NULL || f2 == NULL){
+        if(f1 != NULL)
+            fclose(f1);
+        if(f2 != NULL)
+            fclose(f2);
+        return 1;
+    }
 
     char s[MAX_LINE_SIZE], t[MAX_LINE_SIZE];
     int re = 0;
@@ -423,6 +434,7 @@ bool is_in_head(){ // error -> return 0
     fscanf(f, "%s", br);
     fclose(f);
 
+
     if(chdir("branch"))
         return runtime_in_function("is_in_head"), 0;
     
@@ -474,4 +486,48 @@ bool is_commit_id_valid(const char *id){
     char *dir = get_ghezi_wd();
     add_to_string(dir, "/", all_commits);
     return is_in_file(dir, id);
+}
+
+char* string_concat_master(int n, char **strings, int id, char *ext){
+    int pt = 0;
+    char *res = malloc(1024);
+    for(int i = 0; i < n; i++){
+        if(i == id){
+            int len = strlen(ext);
+            for(int j = 0; j < len; j++)
+                res[pt++] = ext[j];
+            res[pt++] = ' ';
+        }
+        int len = strlen(strings[i]);
+        for(int j = 0; j < len; j++)
+            res[pt++] = strings[i][j];
+        res[pt++] = ' ';
+    }
+    res[pt - 1] = '\0';
+    return res;
+}
+
+bool is_wildcard(const char *s){
+    int len = strlen(s);
+    for(int i = 0; i < len; i++)
+        if(s[i] == '*')
+            return true;
+    return false;
+}
+
+bool wildcard_match(const char *av, const char *pat){
+    int pt = 0, len_av = strlen(av), len_pat = strlen(pat);
+    while(pt < min(len_av, len_pat) && pat[pt] == av[pt])
+        pt++;
+    if(pt == len_av && pt == len_pat)
+        return true;
+    if(pat[pt] != '*')
+        return false;
+    pt = len_pat - 1;
+    int pt2 = len_av - 1;
+    while(pat[pt] == av[pt2]){
+        pt--;
+        pt2--;
+    }
+    return pat[pt] == '*';
 }

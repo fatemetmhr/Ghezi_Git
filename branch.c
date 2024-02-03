@@ -26,7 +26,7 @@ int make_branch(const char *name){
     f = fopen(stage_name, "w");
     fclose(f);
 
-    if(commit(" ", true))
+    if(commit(" ", true, true))
         return 1;
     
     f = fopen(branch_name, "w");

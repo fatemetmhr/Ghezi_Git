@@ -82,6 +82,9 @@ char* find_in_map_with_space(const char *file_path, const char *pat);
 bool is_valid_command(const char *command);
 bool get_silent();
 bool is_commit_id_valid(const char *commit_id);
+char* string_concat_master(int n, char **strings, int id, char *extra_string);
+bool is_wildcard(const char *s);
+bool wildcard_match(const char *have, const char *wildcard);
 
 
 // init
@@ -101,10 +104,12 @@ int set_general_alias(char *alias, char *command);
 
 int add_file(const char *name);
 int add_dir();
-int show_stage_status();
+int show_stage_status(const char *cur_path);
+int show_stage_status_recursive(const char *cur_name, int depth);
 int reset_file(const char *name);
 int reset_dir();
 int shift_stage_history(int stp);
+int redo_add();
 
 // status
 
@@ -113,7 +118,7 @@ bool find_untracking_files(bool silent);
 
 // commit
 
-int commit(const char *message, bool force_commit);
+int commit(const char *message, bool force_commit, bool silent_commit);
 char* creat_new_commit(const char *message, bool silent);
 int set_message_shortcut(const char *message, const char *short_cut);
 int remove_message_shortcut(const char *short_cut);
@@ -138,4 +143,4 @@ int show_all_during_commits(struct tm _from, struct tm _before);
 
 int checkout_to_commit(char *commit_id);
 int checkout_to_branch(char *branch_name);
-int checkout_to_head();
+int checkout_to_head(int before_head);

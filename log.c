@@ -69,13 +69,12 @@ int show_all_word_match_commits(int n, char **pat){
         char av[MAX_COMMIT_MESSAGE_SIZE + 100];
         fgets(av, sizeof(av), msg);
         fclose(msg);
-        for(int i = 0; i < n; i++){
-            char *ptr = strstr(av, pat[i]);
-            int lenpat = strlen(pat[i]);
-            while(ptr != NULL){
-                re |= (ptr == av || is_white_space(*(ptr - 1))) && is_white_space(*(ptr + lenpat));
-                ptr = strstr(ptr + 1, pat[i]);
-            }
+        char *sep = " \n";
+        char *tokenptr = strtok(av, sep);
+        while(tokenptr != NULL){
+            for(int i = 0; i < n; i++)
+                re |= wildcard_match(tokenptr, pat[i]);
+            tokenptr = strtok(NULL, sep);
         }
         if(re && !is_commit_silented(name) && print_commit_informations(name))
             return 1;

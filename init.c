@@ -78,6 +78,11 @@ int run_init(int argc, char * const argv[]) {
         f = fopen(tracker_name, "w");
         fclose(f);
 
+        // set cur commit id
+        f = fopen(last_commit, "w");
+        fprintf(f, "%d", 0);
+        fclose(f);
+
         char cur[1024];
         if (getcwd(cur, sizeof(cur)) == NULL) 
             return 1;
@@ -100,7 +105,7 @@ int run_init(int argc, char * const argv[]) {
         // set local configs
         if(update_config(name, email))
             return 1;
-        return commit(" ", true);
+        return commit(" ", true, true);
     }else if(res == 0) {
         printf("ghezi repository has already initialized\n");
     }

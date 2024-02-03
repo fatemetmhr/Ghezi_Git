@@ -8,9 +8,7 @@ int add_file(const char *name){ // in this directory, will be return here as wel
         return 1;
     
     // find real path
-    char fpath[1024];
-    strcpy(fpath, cwd);
-    add_to_string(fpath, "/", name);
+    char *fpath = abs_path(name);
 
     // remove previouse added
     if(reset_file(name))
@@ -111,7 +109,7 @@ int add_dir(){ // add all files in this directory
     return 0;
 }
 
-int show_stage_status(){
+int show_stage_status(const char *cur_path){
     if(get_silent())
         return 0;
     char cwd[1024];
@@ -158,7 +156,7 @@ int show_stage_status(){
                 re = 2;
             break;
         }
-        printf("%s : ", entry -> d_name);
+        printf("%s/%s : ", cur_path, entry -> d_name);
         if(!re)
             printf("not staged\n");
         else if(re == 1)
@@ -170,14 +168,34 @@ int show_stage_status(){
 }
 
 
+int show_stage_status_recursive(const char *cur_path, int depth){
+    if(get_silent())
+        return 0;
+    if(show_stage_status(cur_path))
+        return 1;
+    depth--;
+    if(!depth)
+        return 0;
+    struct dirent *entry;
+    DIR *dir = opendir(".");
+    if(dir == NULL)
+        return 1;
+    while((entry = readdir(dir)) != NULL) 
+        if(is_allowed_name(entry->d_name) && entry->d_type == DT_DIR)
+            if(show_stage_status_recursive(string_concat(cur_path, "/", entry->d_name), depth))
+                return 1;
+    closedir(dir);
+    return 0;
+}
+
+
 int reset_file(const char *name){
     if(get_silent())
         return 0;
-    char cwd[1024], file[1024];
+    char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) == NULL) 
         return 1;
-    strcpy(file, cwd);
-    add_to_string(file, "/", name);
+    char *file = abs_path(name);
 
     if(chdir_ghezi())
         return 9;
@@ -247,5 +265,29 @@ int shift_stage_history(int stp){
 
     if(chdir(cwd))
         return 1;
+    return 0;
+}
+
+
+int redo_add(){
+    if(get_silent())
+        return 0;
+    if(chdir_ghezi())
+        return 1;
+    FILE *stages = fopen(stage_name, "r");
+    char **to_add = malloc(2048);
+    char rl[1024], cp[1024];
+    int n = 0;
+    while(fscanf(stages, "%s %s\n", rl, cp) > 0){
+        if(are_diff(rl, cp)){
+            to_add[n] = malloc(1024);
+            strcpy(to_add[n], rl);
+            n++;
+        }
+    }
+    fclose(stages);
+    for(int i = 0; i < n; i++)
+        if(add_file(to_add[i]))
+            return 1;
     return 0;
 }

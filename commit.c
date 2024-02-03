@@ -1,13 +1,13 @@
 #include "ghezi.h"
 
-int commit(const char *msg, bool frc){
+int commit(const char *msg, bool frc, bool silent){
     if(get_silent())
         return 0;
     if(chdir_ghezi())
         return 1;
     if(!frc && is_file_empty(stage_name))
         return fprintf(stderr, "no file is staged for commit!"), 0;
-    char *commit_id = creat_new_commit(msg, frc);
+    char *commit_id = creat_new_commit(msg, silent);
     char path[2048];
     if(getcwd(path, sizeof(path)) == NULL)
         return 1;
@@ -33,9 +33,11 @@ int commit(const char *msg, bool frc){
     fclose(head);
     FILE *f = fopen(stage_name, "w");
     fclose(f);
-    f = fopen(last_commit, "w");
-    fprintf(f, "%s", commit_id);
-    fclose(f);
+    if(!silent){
+        f = fopen(last_commit, "w");
+        fprintf(f, "%s", commit_id);
+        fclose(f);
+    }
     return copy_file(commit_files, head_name);
 }
 
@@ -79,7 +81,7 @@ char* creat_new_commit(const char *msg, bool silent){
     time(&rawtime);
     cur_tm = localtime(&rawtime);
     f = fopen(commit_time, "w");
-    fprintf(f, "%d %d %d %d %d %d", cur_tm->tm_year, cur_tm->tm_mon, cur_tm->tm_mday, cur_tm->tm_hour, cur_tm->tm_min, cur_tm->tm_sec);
+    fprintf(f, "%d %d %d %d %d %d %d", cur_tm->tm_year, cur_tm->tm_mon, cur_tm->tm_mday, cur_tm->tm_wday, cur_tm->tm_hour, cur_tm->tm_min, cur_tm->tm_sec);
     fclose(f);
 
     // message
@@ -185,7 +187,7 @@ int print_commit_informations(const char *id){
     if(f == NULL)
         return 1;
     struct tm cur;
-    fscanf(f, "%d %d %d %d %d %d", &cur.tm_year, &cur.tm_mon, &cur.tm_mday, &cur.tm_hour, &cur.tm_min, &cur.tm_sec);
+    fscanf(f, "%d %d %d %d %d %d %d", &cur.tm_year, &cur.tm_mon, &cur.tm_mday, &cur.tm_wday, &cur.tm_hour, &cur.tm_min, &cur.tm_sec);
     fclose(f);
     printf("Time: %s", asctime(&cur));
 
