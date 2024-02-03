@@ -646,3 +646,32 @@ int remove_from_file(const char *file_path, const char *pat){
     remove("remove_from_file_tmp.txt");
     return 0;
 }
+
+bool is_null(const char *s){
+    int len = strlen(s);
+    bool re = true;
+    for(int i = 0; i < len; i++)
+        re &= is_white_space(s[i]);
+    return re;
+}
+
+char* get_next_valid_line(FILE *file_pointer, int *cur_line){
+    char *s = malloc(MAX_LINE_SIZE);
+    s[0] = '\0';
+    while(is_null(s)){
+        (*cur_line)++;
+        if(fgets(s, MAX_LINE_SIZE, file_pointer) == NULL){
+            s[0] = '\0';
+            return s;
+        }
+    }
+    return s;
+}
+
+int find_char_in_string(const char *string, const char c){
+    int len = strlen(string);
+    for(int i = 0; i < len; i++)
+        if(string[i] == c)
+            return i;
+    return -1;
+}

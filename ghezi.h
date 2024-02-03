@@ -45,6 +45,7 @@ static const int MAX_PATH_SIZE           = 510;
 static const int MAX_LINE_SIZE           = 2048;
 static const int MAX_STAGE_HISTORY       = 11;
 static const int MAX_COMMIT_MESSAGE_SIZE = 72;
+static const int MAX_FILE_SIZE           = 1000000000;
 
 
 // general functions
@@ -101,6 +102,9 @@ char* get_user_information();
 int remove_from_map(const char *file_path, const char *pat);
 char* get_current_commit_id();
 int remove_from_file(const char *file_path, const char *pat);
+char* get_next_valid_line(FILE *file_pointer, int *cur_line);
+bool is_null(const char *string);
+int find_char_in_string(const char *string, const char c);
 
 
 // init
@@ -171,3 +175,8 @@ int revert_to_head(int step, const char *message);
 int add_tag(const char *tag, const char *commit_id, const char *message, bool overwrite);
 int show_all_tags();
 int print_tag(const char *tag);
+
+// diff
+
+bool file_diff_checker(const char *file1, const char *file2, int begin1, int end1, int begin2, int end2, bool silent, bool show_extra_informatin, const char *extera1, const char *extera2);
+bool commit_diff_checker(const char *commit_id1, const char *commit_id2, bool silent_in_file_diff, bool silent_extra_file,  bool show_extra_informatin, const char *extera1, const char *extera2);
