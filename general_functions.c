@@ -531,3 +531,31 @@ bool wildcard_match(const char *av, const char *pat){
     }
     return pat[pt] == '*';
 }
+
+char* get_head_x_commit(const int step){
+    char *dir = get_ghezi_wd();
+    FILE *f = fopen(string_concat(dir, "/", branch_name), "r");
+    if(f == NULL)
+        runtime_in_function("get_head_x_commit");
+    char *emp = malloc(10);
+    emp[0] = '\0';
+    char branch[1024], tmp[1024];
+    char *id = malloc(1024);
+    fscanf(f, "%s", branch);
+    fclose(f);
+    add_to_string(dir, "/branch/", branch);
+    f = fopen(dir, "r");
+    if(f == NULL)
+        runtime_in_function("get_head_x_commit");
+    int n = step;
+    n++;
+    while(n--){
+        if(fscanf(f, "%s \n", id) <= 0)
+            return fprintf(stderr, "less than %d commits exist in this branch!\n", step), emp;
+        
+    }
+    if(fscanf(f, "%s \n", tmp) <= 0)
+        return fprintf(stderr, "less than %d commits exist in this branch!\n", step), emp;
+    fclose(f);
+    return id;
+}

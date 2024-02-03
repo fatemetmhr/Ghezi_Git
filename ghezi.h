@@ -85,6 +85,7 @@ bool is_commit_id_valid(const char *commit_id);
 char* string_concat_master(int n, char **strings, int id, char *extra_string);
 bool is_wildcard(const char *s);
 bool wildcard_match(const char *have, const char *wildcard);
+char* get_head_x_commit(const int step);
 
 
 // init
@@ -141,6 +142,11 @@ int show_all_during_commits(struct tm _from, struct tm _before);
 
 // checkout
 
-int checkout_to_commit(char *commit_id);
-int checkout_to_branch(char *branch_name);
+int checkout_to_commit(const char *commit_id);
+int checkout_to_branch(const char *branch_name);
 int checkout_to_head(int before_head);
+
+// revert
+
+int revert_to_commit(const char *commit_id, const char *message, bool do_commit);
+int revert_to_head(int step, const char *message);

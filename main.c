@@ -305,6 +305,47 @@ int main(int argc, char *argv[]) {
             return checkout_to_commit(argv[2]);
         return checkout_to_branch(argv[2]);
     }
+    
+    if(!strcmp(argv[1], "revert")){
+        char *msg = malloc(1024);
+        msg[0] = '\0';
+        if(argc < 3)
+            return invalid_command(), 1;
+        if(!strcmp(argv[2], "-n")){
+            if(argc != 4)
+                return invalid_command(), 1;
+            if(!silent && status(true))
+                return printf("Some files has been changed but not commited. Revert failed!\n"), 0;
+            if(!silent && !is_in_head())
+                return fprintf(stderr, "Reverting is only available in the HEAD of a branch!\n"), 0;
+            return revert_to_commit(argv[3], msg, false);
+        }
+        if(!strcmp(argv[2], "-m")){
+            if(argc != 5)
+                return invalid_command(), 1;
+            strcpy(msg, argv[3]);
+            argc = 3;
+            argv[2] = argv[4];
+            if(strlen(msg) > MAX_COMMIT_MESSAGE_SIZE){
+                if(silent)
+                    return 1;
+                return fprintf(stderr, "too long message!"), 0;
+            }
+        }
+        if(argc != 3)
+            return invalid_command(), 1;
+        if(!silent && status(true))
+            return printf("Some files has been changed but not commited. Revert failed!\n"), 0;
+        if(!silent && !is_in_head())
+            return fprintf(stderr, "Reverting is only available in the HEAD of a branch!\n"), 0;
+        if(!remove_prefix(argv[2], "HEAD-")){
+            int x = get_num(argv[2]);
+            if(x == -1)
+                return invalid_command(), 1;
+            return revert_to_head(x, msg);
+        }
+        return revert_to_commit(argv[2], msg, true);
+    }
 
     return invalid_command(), 1;
 }

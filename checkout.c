@@ -1,10 +1,12 @@
 #include "ghezi.h"
 
-int checkout_to_commit(char *id){
+int checkout_to_commit(const char *id){
     if(get_silent())
         return 0;
     if(chdir_ghezi())
         return 1;
+    FILE *stages = fopen(stage_name, "w");
+    fclose(stages);
     FILE *cur_commit = fopen(last_commit, "w");
     fprintf(cur_commit, "%s", id);
     fclose(cur_commit);
@@ -42,7 +44,7 @@ int checkout_to_commit(char *id){
     return 0;
 }
 
-int checkout_to_branch(char *name){
+int checkout_to_branch(const char *name){
     if(get_silent())
         return 0;
     if(chdir_ghezi() || chdir("branch"))
@@ -61,25 +63,9 @@ int checkout_to_head(int n){
         return 0;
     if(chdir_ghezi())
         return 1;
-    FILE *f = fopen(branch_name, "r");
-    if(f == NULL)
-        return 1;
-    char branch[1024], tmp[1024], id[1024];
-    fscanf(f, "%s", branch);
-    fclose(f);
-    if(chdir("branch"))
-        return 1;
-    f = fopen(branch, "r");
-    int keep = n;
-    n++;
-    while(n--){
-        if(fscanf(f, "%s \n", id) <= 0)
-            return fprintf(stderr, "less than %d commits exist in this branch!\n", keep), 0;
-        
-    }
-    if(fscanf(f, "%s \n", tmp) <= 0)
-        return fprintf(stderr, "less than %d commits exist in this branch!\n", keep), 0;
-    fclose(f);
+    char *id = get_head_x_commit(n);
+    if(strlen(id) == 0)
+        return 0;
     return checkout_to_commit(id);
 }
 
