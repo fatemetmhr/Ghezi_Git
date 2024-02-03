@@ -202,6 +202,8 @@ bool is_file_here(const char *path, const char *file){
 
 bool is_in_file(const char *path, const char *pat){
     FILE *f = fopen(path, "r");
+    if(f == NULL)
+        return false;
     char s[1024];
     bool re = false;
     while(fscanf(f, "%s \n", s) > 0)
@@ -558,4 +560,89 @@ char* get_head_x_commit(const int step){
         return fprintf(stderr, "less than %d commits exist in this branch!\n", step), emp;
     fclose(f);
     return id;
+}
+
+struct tm get_current_time(){
+    time_t rawtime;
+    struct tm * cur_tm;
+    time(&rawtime);
+    cur_tm = localtime(&rawtime);
+    return *cur_tm;
+}
+
+int write_time(const char *path, const struct tm tim){
+    FILE *f = fopen(path, "w");
+    if(f == NULL)
+        return 1;
+    fprintf(f, "%d %d %d %d %d %d %d", tim.tm_year, tim.tm_mon, tim.tm_mday, tim.tm_wday, tim.tm_hour, tim.tm_min, tim.tm_sec);
+    fclose(f);
+    return 0;
+}
+
+struct tm read_time(const char *path){
+    FILE *f = fopen(path, "r");
+    struct tm tim;
+    tim.tm_hour = 0;
+    if(f == NULL)
+        return runtime_in_function("read_time"), tim;
+    fscanf(f, "%d %d %d %d %d %d %d", &tim.tm_year, &tim.tm_mon, &tim.tm_mday, &tim.tm_wday, &tim.tm_hour, &tim.tm_min, &tim.tm_sec);
+    fclose(f);
+    return tim;
+}
+
+char* get_user_information(){
+    char *dir = get_ghezi_wd();
+    add_to_string(dir, "/", config_name);
+    FILE *config = fopen(dir, "r");
+    if(config == NULL)
+        runtime_in_function("get_user_information");
+    char *infor = malloc(2048);
+    if(fgets(infor, 2048, config) == NULL)
+        runtime_in_function("get_user_information");
+    fclose(config);
+    return infor;
+}
+
+int remove_from_map(const char *file_path, const char *pat){
+    FILE *f = fopen(file_path, "r");
+    FILE *t = fopen("remove_from_map_tmp.txt", "w");
+    if(f == NULL || t == NULL)
+        return 1;
+    char rl[1024], cp[1024];
+    while(fscanf(f, "%s %s\n", rl, cp) > 0){
+        if(strcmp(rl, pat))
+            fprintf(t, "%s %s\n", rl, cp);
+    }
+    fclose(f);
+    fclose(t);
+    if(copy_file("remove_from_map_tmp.txt", file_path))
+        return 1;
+    remove("remove_from_map_tmp.txt");
+    return 0;
+}
+
+char* get_current_commit_id(){
+    char *dir = get_ghezi_wd();
+    FILE *f = fopen(string_concat(dir, "/", last_commit), "r");
+    if(f == NULL)
+        runtime_in_function("get_current_commit_id");
+    char *s = malloc(1024);
+    fscanf(f, "%s", s);
+    fclose(f);
+    return s;
+}
+
+int remove_from_file(const char *file_path, const char *pat){
+    FILE *f = fopen(file_path, "r");
+    FILE *t = fopen("remove_from_file_tmp.txt", "w");
+    char s[1024];
+    while(fscanf(f, "%s \n", s) > 0)
+        if(strcmp(pat, s))
+            fprintf(t, "%s\n", s);
+    fclose(f);
+    fclose(t);
+    if(copy_file("remove_from_file_tmp.txt", file_path))
+        return 1;
+    remove("remove_from_file_tmp.txt");
+    return 0;
 }

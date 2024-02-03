@@ -83,6 +83,15 @@ int run_init(int argc, char * const argv[]) {
         fprintf(f, "%d", 0);
         fclose(f);
 
+        // creat file for tag and a folder to keep them
+        f = fopen(tag_name, "w");
+        fclose(f);
+        f = fopen(commits_with_tag_name, "w");
+        fclose(f);
+        if(mkdir("tag", 0755))
+            return 1;
+        
+
         char cur[1024];
         if (getcwd(cur, sizeof(cur)) == NULL) 
             return 1;
@@ -95,6 +104,7 @@ int run_init(int argc, char * const argv[]) {
             return fprintf(stderr, "error while opening general configs file"), 1;
         fprintf(gconf, "%s\n", cur);
         fclose(gconf);
+
 
 
         if(chdir(cwd) != 0)

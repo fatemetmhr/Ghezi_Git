@@ -197,26 +197,7 @@ int reset_file(const char *name){
         return 1;
     char *file = abs_path(name);
 
-    if(chdir_ghezi())
-        return 9;
-    FILE *stage = fopen(stage_name, "r");
-    FILE *nstage = fopen("tmp.txt", "w");
-    if(stage == NULL || nstage == NULL)
-        return 87;
-    char rl[1024], cp[1024];
-    while(fscanf(stage, "%s %s\n", rl, cp) > 0){
-        if(strcmp(rl, file))
-            fprintf(nstage, "%s %s\n", rl, cp);
-    }
-    fclose(stage);
-    fclose(nstage);
-    remove(stage_name);
-    if(rename_file("tmp.txt", stage_name))
-        return 8;
-
-    if(chdir(cwd))
-        return 1;
-    return 0;
+    return remove_from_map(string_concat(get_ghezi_wd(), "/", stage_name), file);
 }
 
 int reset_dir(){ // add all files in this directory

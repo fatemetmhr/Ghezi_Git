@@ -93,12 +93,7 @@ int show_all_during_commits(struct tm frm, struct tm bfr){
         return 1;
     char *name = malloc(1024);
     while(fscanf(comm, "%s \n", name) > 0){
-        FILE *tim = fopen(string_concat(get_commit_path(name), "/", commit_time), "r");
-        if(tim == NULL)
-            return 1;
-        struct tm cur;
-        fscanf(tim, "%d %d %d %d %d %d", &cur.tm_year, &cur.tm_mon, &cur.tm_mday, &cur.tm_hour, &cur.tm_min, &cur.tm_sec);
-        fclose(tim);
+        struct tm cur = read_time(string_concat(get_commit_path(name), "/", commit_time));
         if(is_less_equal(frm, cur) && is_less_equal(cur, bfr) && !is_commit_silented(name) && print_commit_informations(name))
             return 1;
     }

@@ -347,5 +347,57 @@ int main(int argc, char *argv[]) {
         return revert_to_commit(argv[2], msg, true);
     }
 
+    if(!strcmp(argv[1], "tag")){
+        if(argc == 2)
+            return show_all_tags();
+        if(!strcmp(argv[2], "-a")){
+            if(argc < 4)
+                return invalid_command(), 1;
+            bool overwrite = false;
+            char *msg = malloc(1024);
+            msg[0] = ' ';
+            msg[1] = '\0';
+            char *id = malloc(1024);
+            id[0] = '\0';
+            if(argc > 4 && !strcmp(argv[4], "-m")){
+                if(argc < 6)
+                    return invalid_command(), 1;
+                strcpy(msg, argv[5]);
+                for(int i = 6; i < argc; i++)
+                    argv[i - 2] = argv[i];
+                argc -= 2;
+            }
+            if(argc > 4 && !strcmp(argv[4], "-c")){
+                if(argc < 6)
+                    return invalid_command(), 1;
+                strcpy(id, argv[5]);
+                for(int i = 6; i < argc; i++)
+                    argv[i - 2] = argv[i];
+                argc -= 2;
+            }
+            if(argc > 4 && !strcmp(argv[4], "-f")){
+                overwrite = true;
+                for(int i = 5; i < argc; i++)
+                    argv[i - 1] = argv[i];
+                argc--;
+            }
+            if(argc != 4)
+                return invalid_command(), 1;
+            if(silent)
+                return 0;
+            if(!strlen(id))
+                id = get_current_commit_id();
+            return add_tag(argv[3], id, msg, overwrite);
+
+        }
+        if(!strcmp(argv[2], "show")){
+            if(argc != 4)
+                return invalid_command(), 1;
+            return print_tag(argv[3]);
+
+        }
+        return invalid_command(), 1;
+    }
+
     return invalid_command(), 1;
 }

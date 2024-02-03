@@ -4,7 +4,7 @@
 int update_config(char *name, char *email){ // should be called in .ghezi
     if(get_silent())
         return 0;
-    FILE *conf = fopen("config.txt", "w");
+    FILE *conf = fopen(config_name, "w");
     if(conf == NULL)
         return 1;
     fprintf(conf, "%s %s\n", name, email);
@@ -15,7 +15,7 @@ int update_config(char *name, char *email){ // should be called in .ghezi
 int update_config_single(char *infor, int ty){ // ty = 0 -> infor is name 
     if(get_silent())
         return 0;  
-    FILE *cur = fopen("config.txt", "r");
+    FILE *cur = fopen(config_name, "r");
     if(cur == NULL)
         return 34;
     char *s = (char *)malloc(MAX_CONFIG_NAME);

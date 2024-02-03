@@ -57,11 +57,6 @@ char* creat_new_commit(const char *msg, bool silent){
     fscanf(cur_branch, "%s", branch);
     fclose(cur_branch);
 
-    FILE *config = fopen("config.txt", "r");
-    char infor[MAX_LINE_SIZE];
-    if(fgets(infor, sizeof(infor), config) == NULL)
-        fprintf(stderr, "runtime error in function creat_new_commit\n");
-    fclose(config);
     char *id = get_inc(new_commit_id_keeper);
     if(chdir("commits"))
         fprintf(stderr, "runtime error in function creat_new_commit\n");
@@ -72,17 +67,13 @@ char* creat_new_commit(const char *msg, bool silent){
 
     // user
     FILE *f = fopen(commit_user, "w");
-    fprintf(f, "%s", infor);
+    fprintf(f, "%s", get_user_information());
     fclose(f);
 
     // time
-    time_t rawtime;
-    struct tm * cur_tm;
-    time(&rawtime);
-    cur_tm = localtime(&rawtime);
-    f = fopen(commit_time, "w");
-    fprintf(f, "%d %d %d %d %d %d %d", cur_tm->tm_year, cur_tm->tm_mon, cur_tm->tm_mday, cur_tm->tm_wday, cur_tm->tm_hour, cur_tm->tm_min, cur_tm->tm_sec);
-    fclose(f);
+    struct tm cur_tm = get_current_time();
+    if(write_time(commit_time, cur_tm))
+        runtime_in_function("creat_new_commit");
 
     // message
     f = fopen(commit_message, "w");
@@ -101,7 +92,7 @@ char* creat_new_commit(const char *msg, bool silent){
     }
 
     if(!silent)
-        printf ("Commit \"%s\" recorded with id %s in %s", msg, id, asctime(cur_tm));
+        printf ("Commit \"%s\" recorded with id %s in %s", msg, id, asctime(&cur_tm));
 
     if(chdir("../.."))
         fprintf(stderr, "runtime error in function creat_new_commit\n");
@@ -183,15 +174,10 @@ int print_commit_informations(const char *id){
 
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
-    FILE *f = fopen(string_concat(dir, "/", commit_time), "r");
-    if(f == NULL)
-        return 1;
-    struct tm cur;
-    fscanf(f, "%d %d %d %d %d %d %d", &cur.tm_year, &cur.tm_mon, &cur.tm_mday, &cur.tm_wday, &cur.tm_hour, &cur.tm_min, &cur.tm_sec);
-    fclose(f);
-    printf("Time: %s", asctime(&cur));
+    struct tm cur = read_time(string_concat(dir, "/", commit_time));
+    printf("Date: %s", asctime(&cur));
 
-    f = fopen(string_concat(dir, "/", commit_message), "r");
+    FILE *f = fopen(string_concat(dir, "/", commit_message), "r");
     if(f == NULL)
         return 1;
     fgets(s, sizeof s, f);
@@ -203,7 +189,7 @@ int print_commit_informations(const char *id){
         return 1;
     fscanf(f, "%s %s", s, t);
     fclose(f);
-    printf("User %s (%s)\n", s, t);
+    printf("User %s <%s>\n", s, t);
 
     printf("Commit ID: %s\n", id);
 

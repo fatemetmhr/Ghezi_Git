@@ -29,6 +29,14 @@ static const char *msg_shortcuts = "commit_message_shortcuts.txt";
 static const char *all_commits = "all_commits_ids.txt";
 static const char *last_commit = "last_commit_id.txt";
 static const char *alias_name = "alias.txt";
+static const char *tag_name = "tag.txt";
+static const char *commits_with_tag_name = "commits_with_tag.txt";
+static const char *tag_commit = "tag.txt";
+static const char *tag_user = "user.txt";
+static const char *tag_date = "date.txt";
+static const char *tag_message = "message.txt";
+static const char *config_name = "config.txt";
+
 
 static const char *stage_history[11] = {"stage.txt", "stage0.txt", "stage1.txt", "stage2.txt", "stage3.txt", "stage4.txt", "stage5.txt", "stage6.txt", "stage7.txt", "stage8.txt", "stage9.txt"};
 
@@ -86,6 +94,13 @@ char* string_concat_master(int n, char **strings, int id, char *extra_string);
 bool is_wildcard(const char *s);
 bool wildcard_match(const char *have, const char *wildcard);
 char* get_head_x_commit(const int step);
+struct tm get_current_time();
+int write_time(const char *file_path, const struct tm _time);
+struct tm read_time(const char *file_path);
+char* get_user_information();
+int remove_from_map(const char *file_path, const char *pat);
+char* get_current_commit_id();
+int remove_from_file(const char *file_path, const char *pat);
 
 
 // init
@@ -150,3 +165,9 @@ int checkout_to_head(int before_head);
 
 int revert_to_commit(const char *commit_id, const char *message, bool do_commit);
 int revert_to_head(int step, const char *message);
+
+// tag
+
+int add_tag(const char *tag, const char *commit_id, const char *message, bool overwrite);
+int show_all_tags();
+int print_tag(const char *tag);
