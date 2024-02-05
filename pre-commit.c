@@ -104,8 +104,11 @@ int run_pre_commit_for_hook(const char *file, const char *format, const char *ho
 
 int run_todo_hook(const char *file, const char *format, bool silent){
     if(strcmp(format, ".cpp") && strcmp(format, ".c") && strcmp(format, ".txt")){
-        if(!silent)
+        if(!silent){
+            printf("\033[1;33m");
             printf("todo-check......................................SKIPPED\n");
+            printf("\033[1;0m");
+        }
         return 0;
     }
     FILE *f = fopen(file, "r");
@@ -125,18 +128,27 @@ int run_todo_hook(const char *file, const char *format, bool silent){
     }
     fclose(f);
     if(!silent){
-        if(re)
+        if(re){
+            printf("\033[1;31m");
             printf("todo-check......................................FAILED\n");
-        else
+            printf("\033[1;0m");
+        }
+        else{
+            printf("\033[1;32m");
             printf("todo-check......................................PASSED\n");
+            printf("\033[1;0m");
+        }
     }
     return re;
 }
 
 int run_eof_hook(const char *file, const char *format, bool silent){
     if(strcmp(format, ".cpp") && strcmp(format, ".c") && strcmp(format, ".txt")){
-        if(!silent)
+        if(!silent){
+            printf("\033[1;33m");
             printf("eof-blank-space................................SKIPPED\n");
+            printf("\033[1;0m");
+        }
         return 0;
     }
     FILE *f = fopen(file, "r");
@@ -150,10 +162,16 @@ int run_eof_hook(const char *file, const char *format, bool silent){
     int len = strlen(s);
     re = cnt && (len == 0 || is_white_space(s[len - 1]));
     if(!silent){
-        if(re)
+        if(re){
+            printf("\033[1;31m");
             printf("eof-blank-space................................FAILED\n");
-        else
+            printf("\033[1;0m");
+        }
+        else{
+            printf("\033[1;32m");
             printf("eof-blank-space................................PASSED\n");
+            printf("\033[1;0m");
+        }
     }
     return re;
 }
@@ -162,10 +180,16 @@ int run_format_hook(const char *file, const char *format, bool silent){
     bool re = strcmp(format, ".cpp") && strcmp(format, ".c") && strcmp(format, ".txt") && strcmp(format, ".mp3");
     re &= strcmp(format, ".mp4") && strcmp(format, ".wav") && strcmp(format, ".jpg");
     if(!silent){
-        if(re)
-            printf("format-check..................................FAILED\n");
-        else
-            printf("format-check..................................PASSED\n");
+        if(re){
+            printf("\033[1;31m");
+            printf("format-check...................................FAILED\n");
+            printf("\033[1;0m");
+        }
+        else{
+            printf("\033[1;32m");
+            printf("format-check...................................PASSED\n");
+            printf("\033[1;0m");
+        }
     }
     return re;
 }
@@ -173,8 +197,11 @@ int run_format_hook(const char *file, const char *format, bool silent){
 
 int run_brackets_hook(const char *file, const char *format, bool silent){
     if(strcmp(format, ".cpp") && strcmp(format, ".c") && strcmp(format, ".txt")){
-        if(!silent)
+        if(!silent){
+            printf("\033[1;33m");
             printf("balance-braces.................................SKIPPED\n");
+            printf("\033[1;0m");
+        }
         return 0;
     }
     FILE *f = fopen(file, "r");
@@ -189,18 +216,27 @@ int run_brackets_hook(const char *file, const char *format, bool silent){
     fclose(f);
     bool re = cnt['['] != cnt[']'] || cnt['('] != cnt[')'] || cnt['{'] != cnt['}'];
     if(!silent){
-        if(re)
+        if(re){
+            printf("\033[1;31m");
             printf("balance-braces.................................FAILED\n");
-        else
+            printf("\033[1;0m");
+        }
+        else{
+            printf("\033[1;32m");
             printf("balance-braces.................................PASSED\n");
+            printf("\033[1;0m");
+        }
     }
     return re;
 }
 
 int run_compile_hook(const char *file, const char *format, bool silent){
     if(strcmp(format, ".cpp") && strcmp(format, ".c")){
-        if(!silent)
-            printf("static-error-check............................SKIPPED\n");
+        if(!silent){
+            printf("\033[1;33m");
+            printf("static-error-check..............................SKIPPED\n");
+            printf("\033[1;0m");
+        }
         return 0;
     }
     copy_file(file, "a.cpp");
@@ -209,10 +245,16 @@ int run_compile_hook(const char *file, const char *format, bool silent){
     remove("a.out");
     remove("a.cpp");
     if(!silent){
-        if(re)
-            printf("static-error-check...........................FAILED\n");
-        else
-            printf("static-error-check...........................PASSED\n");
+        if(re){
+            printf("\033[1;31m");
+            printf("static-error-check..............................FAILED\n");
+            printf("\033[1;0m");
+        }
+        else{
+            printf("\033[1;32m");
+            printf("static-error-check..............................PASSED\n");
+            printf("\033[1;0m");
+        }
     }
     return re;
 }
@@ -223,18 +265,27 @@ int run_size_hook(const char *file, const char *format, bool silent){
     int size = st.st_size;
     bool re = size > 5000000;
     if(!silent){
-        if(re)
+        if(re){
+            printf("\033[1;31m");
             printf("file-size-check................................FAILED\n");
-        else
+            printf("\033[1;0m");
+        }
+        else{
+            printf("\033[1;32m");
             printf("file-size-check................................PASSED\n");
+            printf("\033[1;0m");
+        }
     }
     return re;
 }
 
 int run_char_limit_hook(const char *file, const char *format, bool silent){
     if(strcmp(format, ".cpp") && strcmp(format, ".c") && strcmp(format, ".txt")){
-        if(!silent)
+        if(!silent){
+            printf("\033[1;33m");
             printf("character-limit................................SKIPPED\n");
+            printf("\033[1;0m");
+        }
         return 0;
     }
     FILE *f = fopen(file, "r");
@@ -245,10 +296,16 @@ int run_char_limit_hook(const char *file, const char *format, bool silent){
     fclose(f);
     bool re = cnt > 20000;
     if(!silent){
-        if(re)
+        if(re){
+            printf("\033[1;31m");
             printf("character-limit................................FAILED\n");
-        else
+            printf("\033[1;0m");
+        }
+        else{
+            printf("\033[1;32m");
             printf("character-limit................................PASSED\n");
+            printf("\033[1;0m");
+        }
     }
     return re;
 }

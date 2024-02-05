@@ -46,9 +46,13 @@ bool file_diff_checker(const char *file1, const char *file2, int begin1, int end
                 continue;
             printf("«««««\n");
             printf("%s - %d\n", show_extra_informatin ? ext1 : name1, line1);
+            printf("\033[1;32m");
             printf("%s\n", s1);
+            printf("\033[1;0m");
             printf("%s - %d\n", show_extra_informatin ? ext2 : name2, line2);
+            printf("\033[1;31m");
             printf("%s\n", s2);
+            printf("\033[1;0m");
             printf("»»»»»\n");
         }
     }
