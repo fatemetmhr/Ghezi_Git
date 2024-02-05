@@ -36,6 +36,7 @@ static const char *tag_user = "user.txt";
 static const char *tag_date = "date.txt";
 static const char *tag_message = "message.txt";
 static const char *config_name = "config.txt";
+static const char *merged_branchs = "merged.txt";
 
 
 static const char *stage_history[11] = {"stage.txt", "stage0.txt", "stage1.txt", "stage2.txt", "stage3.txt", "stage4.txt", "stage5.txt", "stage6.txt", "stage7.txt", "stage8.txt", "stage9.txt"};
@@ -180,3 +181,7 @@ int print_tag(const char *tag);
 
 bool file_diff_checker(const char *file1, const char *file2, int begin1, int end1, int begin2, int end2, bool silent, bool show_extra_informatin, const char *extera1, const char *extera2);
 bool commit_diff_checker(const char *commit_id1, const char *commit_id2, bool silent_in_file_diff, bool silent_extra_file,  bool show_extra_informatin, const char *extera1, const char *extera2);
+
+// merge
+
+int merge_branch(const char *branch1_name, const char *branch2_name);

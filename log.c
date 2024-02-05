@@ -26,7 +26,7 @@ int show_all_branch_commits(char *bname){
         return 1;
     FILE *f = fopen(bname, "r");
     if(f == NULL)
-        return fprintf(stderr, "no such branch exists"), 0;
+        return fprintf(stderr, "no such branch exists\n"), 0;
     char *name = malloc(1024);
     while(fscanf(f, "%s \n", name) > 0)
         if(!is_commit_silented(name) && print_commit_informations(name))

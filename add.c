@@ -26,6 +26,8 @@ int add_file(const char *name){ // in this directory, will be return here as wel
         if(stage == NULL)
             return 1;
         fprintf(stage, "%s NULL\n", fpath);
+        if(chdir(cwd))
+            return 1;
         return fprintf(stderr, "file or directory %s doesn't exist or has been deleted!\n", name), 0;
     }
     

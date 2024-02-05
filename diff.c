@@ -62,6 +62,9 @@ bool file_diff_checker(const char *file1, const char *file2, int begin1, int end
 bool commit_diff_checker(const char *id1, const char *id2, bool silent_in_file_diff, bool silent_extra_file, bool show_extra_informatin, const char *ext1, const char *ext2){
     if(get_silent())
         return 0;
+    char cwd[1024];
+    if(getcwd(cwd, sizeof(cwd)) == NULL)
+        return runtime_in_function("commit_diff_checker"), 1;
     if(chdir_ghezi() || chdir("commits"))
         return runtime_in_function("commit_diff_checker"), 1;
     FILE *av1 = fopen(string_concat(id1, "/", commit_paths), "r");
@@ -108,8 +111,11 @@ bool commit_diff_checker(const char *id1, const char *id2, bool silent_in_file_d
     
     fclose(av1);
 
-    if(silent_extra_file)
+    if(silent_extra_file){
+        if(chdir(cwd))
+            return runtime_in_function("commit_diff_checker"), 1;
         return diff;
+    }
 
     FILE *av2 = fopen(string_concat(id2, "/", commit_paths), "r");
     while(fscanf(av2, "%s %s\n", rl, cp) > 0){
@@ -122,6 +128,7 @@ bool commit_diff_checker(const char *id1, const char *id2, bool silent_in_file_d
             printf("»»»»»\n");
         }
     }
-
+    if(chdir(cwd))
+        return runtime_in_function("commit_diff_checker"), 1;
     return diff;
 }

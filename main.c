@@ -329,7 +329,7 @@ int main(int argc, char *argv[]) {
             if(strlen(msg) > MAX_COMMIT_MESSAGE_SIZE){
                 if(silent)
                     return 1;
-                return fprintf(stderr, "too long message!"), 0;
+                return fprintf(stderr, "too long message!\n"), 0;
             }
         }
         if(argc != 3)
@@ -443,6 +443,12 @@ int main(int argc, char *argv[]) {
             return 0;
         }
         return invalid_command(), silent;
+    }
+
+    if(!strcmp(argv[1], "merge")){
+        if(argc != 5 || strcmp(argv[2], "-b"))
+            return invalid_command(), silent;
+       return  merge_branch(argv[3], argv[4]);
     }
 
     return invalid_command(), silent;

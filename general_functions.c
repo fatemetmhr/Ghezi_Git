@@ -10,7 +10,7 @@ int min(int a, int b){
 
 void invalid_command(){
     if(!get_silent())
-        fprintf(stderr, "please enter a valid commnad!");
+        fprintf(stderr, "please enter a valid commnad!\n");
 }
 
 void runtime_in_function(char *function_name){

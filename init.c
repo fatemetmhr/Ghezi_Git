@@ -15,9 +15,9 @@ int run_init(int argc, char * const argv[]) {
         FILE *gname = fopen(last_general_name, "r");
         FILE *gemail = fopen(last_general_email, "r");
         if(gname == NULL)
-            return fprintf(stderr, "please settup a general username befor creating ghezi"), 1;
+            return fprintf(stderr, "please settup a general username befor creating ghezi\n"), 1;
         if(gemail == NULL)
-            return fprintf(stderr, "please settup a general email befor creating ghezi"), 1;
+            return fprintf(stderr, "please settup a general email befor creating ghezi\n"), 1;
         char name[1024], email[1024];
         fscanf(gname, "%s", name);
         fscanf(gemail, "%s", email);
@@ -29,7 +29,7 @@ int run_init(int argc, char * const argv[]) {
         // making repo
         if (mkdir(".ghezi", 0755) != 0) 
             return 2;
-        printf("ghezi has been created successfully!");
+        printf("ghezi has been created successfully!\n");
         if(chdir(".ghezi") != 0)
             return 1;
 
@@ -101,7 +101,7 @@ int run_init(int argc, char * const argv[]) {
             return 1;
         FILE *gconf = fopen(general_configs_name, "a");
         if(gconf == NULL)
-            return fprintf(stderr, "error while opening general configs file"), 1;
+            return fprintf(stderr, "error while opening general configs file\n"), 1;
         fprintf(gconf, "%s\n", cur);
         fclose(gconf);
 

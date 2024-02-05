@@ -6,7 +6,7 @@ int commit(const char *msg, bool frc, bool silent){
     if(chdir_ghezi())
         return 1;
     if(!frc && is_file_empty(stage_name))
-        return fprintf(stderr, "no file is staged for commit!"), 0;
+        return fprintf(stderr, "no file is staged for commit!\n"), 0;
     char *commit_id = creat_new_commit(msg, silent);
     char path[2048];
     if(getcwd(path, sizeof(path)) == NULL)

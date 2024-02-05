@@ -5,6 +5,12 @@ int revert_to_commit(const char *id, const char *message, bool do_commit){
         return 0;
     if(chdir_ghezi())
         return 1;
+    FILE *f = fopen(string_concat("commits/", id, string_concat2("/", commit_branch)), "r");
+    char cur_bra[1024];
+    fscanf(f, "%s", cur_bra);
+    fclose(f);
+    if(is_in_file(merged_branchs, cur_bra))
+        return fprintf(stderr, "commit %s has been merged. revert faild\n", id), 0;
     char *msg = malloc(MAX_COMMIT_MESSAGE_SIZE + 10);
     if(do_commit && !strlen(message)){
         FILE *f = fopen(string_concat("commits/", id, string_concat2("/", commit_message)), "r");
@@ -15,7 +21,7 @@ int revert_to_commit(const char *id, const char *message, bool do_commit){
     }
     else
         strcpy(msg, message);
-    FILE *f = fopen(branch_name, "r");
+    f = fopen(branch_name, "r");
     if(f == NULL)
         return 1;
     char cur_br[1024], keep_id[1024];
