@@ -3,10 +3,16 @@
 int commit(const char *msg, bool frc, bool silent){
     if(get_silent())
         return 0;
+    char keep_cwd[1024];
+    if(getcwd(keep_cwd, sizeof(keep_cwd)) == NULL)
+        return 1;
     if(chdir_ghezi())
         return 1;
-    if(!frc && is_file_empty(stage_name))
+    if(!frc && is_file_empty(stage_name)){
+        if(chdir(keep_cwd))
+            return 1;
         return fprintf(stderr, "no file is staged for commit!\n"), 0;
+    }
     char *commit_id = creat_new_commit(msg, silent);
     char path[2048];
     if(getcwd(path, sizeof(path)) == NULL)
@@ -38,7 +44,11 @@ int commit(const char *msg, bool frc, bool silent){
         fprintf(f, "%s", commit_id);
         fclose(f);
     }
-    return copy_file(commit_files, head_name);
+    if(copy_file(commit_files, head_name))
+        return 1;
+    if(chdir(keep_cwd))
+        return 1;
+    return 0;
 }
 
 char* creat_new_commit(const char *msg, bool silent){

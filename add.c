@@ -194,9 +194,6 @@ int show_stage_status_recursive(const char *cur_path, int depth){
 int reset_file(const char *name){
     if(get_silent())
         return 0;
-    char cwd[1024];
-    if (getcwd(cwd, sizeof(cwd)) == NULL) 
-        return 1;
     char *file = abs_path(name);
 
     return remove_from_map(string_concat(get_ghezi_wd(), "/", stage_name), file);
@@ -255,6 +252,9 @@ int shift_stage_history(int stp){
 int redo_add(){
     if(get_silent())
         return 0;
+    char keep_cwd[1024];
+    if(getcwd(keep_cwd, sizeof(keep_cwd)) == NULL)
+        return 1;
     if(chdir_ghezi())
         return 1;
     FILE *stages = fopen(stage_name, "r");
@@ -272,5 +272,7 @@ int redo_add(){
     for(int i = 0; i < n; i++)
         if(add_file(to_add[i]))
             return 1;
+    if(chdir(keep_cwd))
+        return 1;
     return 0;
 }

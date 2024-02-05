@@ -675,3 +675,15 @@ int find_char_in_string(const char *string, const char c){
             return i;
     return -1;
 }
+
+char* get_file_format(const char *file){
+    int len = strlen(file);
+    char *res = malloc(1024);
+    res[0] = '\0';
+    for(int i = len - 1; i >= 0; i--)
+        if(file[i] == '.'){
+            strcpy(res, file + i);
+            return res;
+        }
+    return res;
+}

@@ -33,6 +33,7 @@ int run_init(int argc, char * const argv[]) {
         if(chdir(".ghezi") != 0)
             return 1;
 
+
         // making source folder and counter file
         if(mkdir("source", 0755) != 0)
             return 1;
@@ -40,6 +41,10 @@ int run_init(int argc, char * const argv[]) {
         if(f == NULL)
             return 1;
         fprintf(f, "%d", 0);
+        fclose(f);
+
+        // making hooks list
+        f = fopen(hook_list, "w");
         fclose(f);
 
         // making alias files

@@ -37,6 +37,7 @@ static const char *tag_date = "date.txt";
 static const char *tag_message = "message.txt";
 static const char *config_name = "config.txt";
 static const char *merged_branchs = "merged.txt";
+static const char *hook_list = "hook.txt";
 
 
 static const char *stage_history[11] = {"stage.txt", "stage0.txt", "stage1.txt", "stage2.txt", "stage3.txt", "stage4.txt", "stage5.txt", "stage6.txt", "stage7.txt", "stage8.txt", "stage9.txt"};
@@ -106,6 +107,7 @@ int remove_from_file(const char *file_path, const char *pat);
 char* get_next_valid_line(FILE *file_pointer, int *cur_line);
 bool is_null(const char *string);
 int find_char_in_string(const char *string, const char c);
+char* get_file_format(const char *file);
 
 
 // init
@@ -185,3 +187,19 @@ bool commit_diff_checker(const char *commit_id1, const char *commit_id2, bool si
 // merge
 
 int merge_branch(const char *branch1_name, const char *branch2_name);
+
+// pre-commit
+
+int show_hook_list();
+int show_all_hooks();
+int add_hook(const char *hook_id);
+int remove_hook(const char *hook_id);
+int run_pre_commit(bool silent);
+int run_pre_commit_for_hook(const char *file, const char *format, const char *hook_id, bool silent);
+int run_todo_hook(const char *file, const char *format, bool silent);
+int run_eof_hook(const char *file, const char *format, bool silent);
+int run_format_hook(const char *file, const char *format, bool silent);
+int run_brackets_hook(const char *file, const char *format, bool silent);
+int run_compile_hook(const char *file, const char *format, bool silent);
+int run_size_hook(const char *file, const char *format, bool silent);
+int run_char_limit_hook(const char *file, const char *format, bool silent);

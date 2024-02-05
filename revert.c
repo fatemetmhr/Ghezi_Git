@@ -3,14 +3,20 @@
 int revert_to_commit(const char *id, const char *message, bool do_commit){
     if(get_silent())
         return 0;
+    char keep_cwd[1024];
+    if(getcwd(keep_cwd, sizeof(keep_cwd)) == NULL)
+        return 1;
     if(chdir_ghezi())
         return 1;
     FILE *f = fopen(string_concat("commits/", id, string_concat2("/", commit_branch)), "r");
     char cur_bra[1024];
     fscanf(f, "%s", cur_bra);
     fclose(f);
-    if(is_in_file(merged_branchs, cur_bra))
+    if(is_in_file(merged_branchs, cur_bra)){
+        if(chdir(keep_cwd))
+            return 1;
         return fprintf(stderr, "commit %s has been merged. revert faild\n", id), 0;
+    }
     char *msg = malloc(MAX_COMMIT_MESSAGE_SIZE + 10);
     if(do_commit && !strlen(message)){
         FILE *f = fopen(string_concat("commits/", id, string_concat2("/", commit_message)), "r");
@@ -53,6 +59,8 @@ int revert_to_commit(const char *id, const char *message, bool do_commit){
         fprintf(f, "%s", keep_id);
         fclose(f);
     }
+    if(chdir(keep_cwd))
+        return 1;
     return 0;
 
 }

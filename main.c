@@ -207,6 +207,8 @@ int main(int argc, char *argv[]) {
             }
             if(!forced && !silent && !is_in_head())
                 return fprintf(stderr, "Commiting is only available in the HEAD of a branch!\n"), 0;
+            if(!silent && run_pre_commit(true))
+                return fprintf(stderr, "Some hooks failed, commit can not be done.\n"), 0;
             return commit(argv[3], forced, false);
         }
         if(!strcmp(argv[2], "-s")){
@@ -215,6 +217,8 @@ int main(int argc, char *argv[]) {
                 return fprintf(stderr, "shortcut %s does not exist\n", argv[3]), 0;
             if(!forced && !silent && !is_in_head())
                 return fprintf(stderr, "Commiting is only available in the HEAD of a branch!\n"), 0;
+            if(!silent && run_pre_commit(true))
+                return fprintf(stderr, "Some hooks failed, commit can not be done.\n"), 0;
             return commit(msg, forced, false);
         }
         return invalid_command(), silent;
@@ -449,6 +453,34 @@ int main(int argc, char *argv[]) {
         if(argc != 5 || strcmp(argv[2], "-b"))
             return invalid_command(), silent;
        return  merge_branch(argv[3], argv[4]);
+    }
+
+    if(!strcmp(argv[1], "pre-commit")){
+        if(argc == 2){
+            run_pre_commit(false);
+            return 0;
+        }
+        if(!strcmp(argv[2], "hooks")){
+            if(argc != 4 || strcmp(argv[3], "list"))
+                return invalid_command(), silent;
+            return show_all_hooks();
+        }
+        if(!strcmp(argv[2], "applied")){
+            if(argc != 4 || strcmp(argv[3], "hooks"))
+                return invalid_command(), silent;
+            return show_hook_list();
+        }
+        if(!strcmp(argv[2], "add")){
+            if(argc != 5 || strcmp(argv[3], "hook"))
+                return invalid_command(), silent;
+            return add_hook(argv[4]);
+        }
+        if(!strcmp(argv[2], "remove")){
+            if(argc != 5 || strcmp(argv[3], "hook"))
+                return invalid_command(), silent;
+            return remove_hook(argv[4]);
+        }
+        return invalid_command(), silent;
     }
 
     return invalid_command(), silent;

@@ -3,6 +3,9 @@
 int checkout_to_commit(const char *id){
     if(get_silent())
         return 0;
+    char keep_cwd[1024];
+    if(getcwd(keep_cwd, sizeof(keep_cwd)) == NULL)
+        return 1;
     if(chdir_ghezi())
         return 1;
     FILE *stages = fopen(stage_name, "w");
@@ -15,8 +18,11 @@ int checkout_to_commit(const char *id){
         return 1;
     if(remove_all_here())
         return 1;
-    if(chdir(string_concat(".ghezi/commits", "/", id)))
+    if(chdir(string_concat(".ghezi/commits", "/", id))){
+        if(chdir(keep_cwd))
+            return 1;
         return fprintf(stderr, "no such branch or commit id exist!\n"), 0;
+    }
     FILE *f = fopen(commit_paths, "r");
     if(f == NULL)
         return 1;
@@ -41,12 +47,17 @@ int checkout_to_commit(const char *id){
     f = fopen(branch_name, "w");
     fprintf(f, "%s", s);
     fclose(f);
+    if(chdir(keep_cwd))
+        return 1;
     return 0;
 }
 
 int checkout_to_branch(const char *name){
     if(get_silent())
         return 0;
+    char keep_cwd[1024];
+    if(getcwd(keep_cwd, sizeof(keep_cwd)) == NULL)
+        return 1;
     if(chdir_ghezi() || chdir("branch"))
         return 1;
     FILE *f = fopen(name, "r");
@@ -55,15 +66,24 @@ int checkout_to_branch(const char *name){
     char id[1024];
     fscanf(f, "%s", id);
     fclose(f);
-    return checkout_to_commit(id);
+    if(checkout_to_commit(id))
+        return 1;
+    if(chdir(keep_cwd))
+        return 1;
+    return 0;
 }
 
 int checkout_to_head(int n){
     if(get_silent())
         return 0;
+    char keep_cwd[1024];
+    if(getcwd(keep_cwd, sizeof(keep_cwd)) == NULL)
+        return 1;
     if(chdir_ghezi())
         return 1;
     char *id = get_head_x_commit(n);
+    if(chdir(keep_cwd))
+        return 1;
     if(strlen(id) == 0)
         return 0;
     return checkout_to_commit(id);
