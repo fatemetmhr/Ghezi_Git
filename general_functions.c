@@ -421,6 +421,7 @@ bool is_in_head(){ // error -> return 0
     char cwd[1024];
     if(getcwd(cwd, sizeof(cwd)) == NULL)
         return runtime_in_function("is_in_head"), 0;
+    bool re = true;
     if(chdir_ghezi())
         return runtime_in_function("is_in_head"), 0;
     char id[1024], br[1024], head[1024];
@@ -436,6 +437,8 @@ bool is_in_head(){ // error -> return 0
     fscanf(f, "%s", br);
     fclose(f);
 
+    re &= !is_in_file(merged_branchs, br);
+
 
     if(chdir("branch"))
         return runtime_in_function("is_in_head"), 0;
@@ -445,7 +448,7 @@ bool is_in_head(){ // error -> return 0
         return runtime_in_function("is_in_head"), 0;
     fscanf(f, "%s \n", head);
     fclose(f);
-    bool re = !strcmp(head, id);
+    re &= !strcmp(head, id);
 
     if(chdir(cwd))
         return runtime_in_function("is_in_head"), 0;

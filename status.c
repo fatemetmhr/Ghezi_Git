@@ -20,7 +20,7 @@ bool status(bool silent){ // status of whole repo -> error returnrs 1
         bool is_staged = strlen(find_in_map(spath, s));
         int sts = -1; // sts = 0 -> A, 1 -> M, 2 -> D, -1 -> no change
         if(is_deleted(s)){
-            if(strcmp(last_stage, "NULL"))
+            if(strcmp(last_stage, "NULL") && strlen(last_stage))
                 sts = 2;
             else
                 sts = -1;
