@@ -84,6 +84,18 @@ int run_pre_commit(bool silent){
     return failed;
 }
 
+int run_pre_commit_for_file(const char *file, const char *format, bool silent){
+    if(get_silent())
+        return 0;
+    bool failed = false;
+    FILE *f2 = fopen(string_concat(get_ghezi_wd(), "/", hook_list), "r");
+    char hook[1024];
+    while(fscanf(f2, "%s \n", hook) > 0)
+        failed |= run_pre_commit_for_hook(file, format, hook, silent);
+    fclose(f2);
+    return failed;
+}
+
 int run_pre_commit_for_hook(const char *file, const char *format, const char *hook, bool silent){
     if(!strcmp(hook, "todo-check"))
         return run_todo_hook(file, format, silent);

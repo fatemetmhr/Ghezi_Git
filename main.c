@@ -466,6 +466,22 @@ int main(int argc, char *argvv[]) {
             run_pre_commit(false);
             return 0;
         }
+        if(!strcmp(argv[2], "-f")){
+            if(argc == 3)
+                return invalid_command(), silent;
+            if(silent)
+                return 0;
+            for(int i = 3; i < argc; i++){
+                char *res = find_in_map(string_concat(get_ghezi_wd(), "/", stage_name), abs_path(argv[i]));
+                if(!strlen(res) || !strcmp(res, "NULL"))
+                    printf("file %s does not exist or isn't staged\n", argv[i]);
+                else{
+                    printf("file %s:\n", argv[i]);
+                    run_pre_commit_for_file(res, get_file_format(argv[i]), false);
+                }
+            }
+            return 0;
+        }
         if(!strcmp(argv[2], "hooks")){
             if(argc != 4 || strcmp(argv[3], "list"))
                 return invalid_command(), silent;

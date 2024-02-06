@@ -195,6 +195,7 @@ int show_all_hooks();
 int add_hook(const char *hook_id);
 int remove_hook(const char *hook_id);
 int run_pre_commit(bool silent);
+int run_pre_commit_for_file(const char *file, const char *format, bool silent);
 int run_pre_commit_for_hook(const char *file, const char *format, const char *hook_id, bool silent);
 int run_todo_hook(const char *file, const char *format, bool silent);
 int run_eof_hook(const char *file, const char *format, bool silent);
