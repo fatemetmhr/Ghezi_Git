@@ -203,3 +203,7 @@ int run_brackets_hook(const char *file, const char *format, bool silent);
 int run_compile_hook(const char *file, const char *format, bool silent);
 int run_size_hook(const char *file, const char *format, bool silent);
 int run_char_limit_hook(const char *file, const char *format, bool silent);
+
+// grep
+
+int grep(const char *file, const char *word, bool print_line);

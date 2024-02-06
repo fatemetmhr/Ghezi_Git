@@ -6,7 +6,13 @@ bool get_silent(){
     return silent;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argvv[]) {
+
+    char ** argv = (char **)malloc(100 * sizeof(char *));
+    for(int i = 0; i < argc; i++){
+        argv[i] = malloc(1024);
+        strcpy(argv[i], argvv[i]);
+    }
     
     if (argc < 2)
         return invalid_command(), silent;
@@ -481,6 +487,34 @@ int main(int argc, char *argv[]) {
             return remove_hook(argv[4]);
         }
         return invalid_command(), silent;
+    }
+
+    if(!strcmp(argv[1], "grep")){
+        char *file = malloc(1024);
+        if(argc < 6 || strcmp(argv[2], "-f") || strcmp(argv[4], "-p"))
+            return invalid_command(), silent;
+        strcpy(file, argv[3]);
+        if(argc >= 8 && !strcmp(argv[6], "-c")){
+            if(!silent){
+                if(!is_in_file(string_concat(get_ghezi_wd(), "/", all_commits), argv[7]))
+                    return fprintf(stderr, "no such commit exist\n"), 0;
+                file = find_in_map(string_concat(get_ghezi_wd(), "/commits/", string_concat(argv[7], "/", commit_paths)), abs_path(argv[3]));
+                if(!strlen(file) || !strcmp(file, "NULL"))
+                    return fprintf(stderr, "this file did not exist in commit %s, grep failed\n", argv[7]), 0;
+            }
+            for(int i = 8; i < argc; i++)
+                argv[i - 2] = argv[i];
+            argc -= 2;
+        }
+        bool line = false;
+        if(argc == 7 && !strcmp(argv[6], "-n")){
+            line = true;
+            argc--;
+        }
+        if(argc != 6)
+            return invalid_command(), silent;
+        return grep(file, argv[5], line);
+
     }
 
     return invalid_command(), silent;
