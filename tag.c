@@ -5,29 +5,16 @@ int add_tag(const char *tag, const char *commit_id, const char *message, bool ov
         return 0;
     if(chdir_ghezi())
         return 1;
-    if(is_in_file(tag_name, tag))
-        return fprintf(stderr, "tag %s already exist\n", tag), 0;
-    char *last_tag = find_in_map(commits_with_tag_name, commit_id);
-    if(strlen(last_tag)){
-        if(!overwrite)
-            return fprintf(stderr, "Commit %s already has tag \"%s\", add flag -f to overwrite\n", commit_id, last_tag), 0;
-        if(remove_from_map(commits_with_tag_name, commit_id))
-            return 1;
-        if(remove_from_file(tag_name, last_tag))
-            return 1;
-        if(chdir("tag"))
-            return 1;
-        if(system(string_concat2("rm -rf ", last_tag)))
-            return 1;
-        if(chdir(".."))
-            return 1;
+    bool in_file = is_in_file(tag_name, tag);
+    if(in_file && !overwrite)
+        return fprintf(stderr, "tag %s already exist. use flag -f to overwrite\n", tag), 0;
+    if(!in_file){
+        FILE *f = fopen(tag_name, "a");
+        fprintf(f, "%s\n", tag);
+        fclose(f);
     }
-    FILE *f = fopen(commits_with_tag_name, "a");
-    fprintf(f, "%s %s\n", commit_id, tag);
-    fclose(f);
-    f = fopen(tag_name, "a");
-    fprintf(f, "%s\n", tag);
-    fclose(f);
+    else
+        system(string_concat2("rm -rf tag/", tag));
     if(chdir("tag"))
         return 1;
     if(mkdir(tag, 0755))
@@ -36,7 +23,7 @@ int add_tag(const char *tag, const char *commit_id, const char *message, bool ov
         return 1;
     
     // commit id
-    f = fopen(tag_commit, "w");
+    FILE *f = fopen(tag_commit, "w");
     fprintf(f, "%s", commit_id);
     fclose(f);
 
